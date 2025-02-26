@@ -33,7 +33,10 @@ class App extends UI {
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
         return FTheme(
-          data: systemBloc.dark ? FThemes.green.dark : FThemes.yellow.light,
+          data:
+              systemBloc.dark
+                  ? FThemes.green.dark
+                  : FThemes.yellow.light,
           child: child!,
         );
       },

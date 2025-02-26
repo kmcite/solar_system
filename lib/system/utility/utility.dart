@@ -4,16 +4,18 @@ import 'package:manager/manager.dart';
 class UtilityBloc {
   final utilityRM = RM.inject(
     () => Utility(),
-    persist: () => PersistState(
-      key: 'utility',
-      toJson: (s) => jsonEncode(s.toJson()),
-      fromJson: (json) => Utility.fromJson(jsonDecode(json)),
-    ),
+    persist:
+        () => PersistState(
+          key: 'utility',
+          toJson: (s) => jsonEncode(s.toJson()),
+          fromJson: (json) => Utility.fromJson(jsonDecode(json)),
+        ),
   );
 
-  set utility(Utility value) => utilityRM
-    ..state = value
-    ..notify();
+  set utility(Utility value) =>
+      utilityRM
+        ..state = value
+        ..notify();
 
   Utility get utility => utilityRM.state;
 

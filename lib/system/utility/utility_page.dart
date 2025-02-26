@@ -19,10 +19,7 @@ class UtilityPage extends UI {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.shade50,
-              Colors.white,
-            ],
+            colors: [Colors.blue.shade50, Colors.white],
           ),
         ),
         child: SingleChildScrollView(
@@ -32,7 +29,9 @@ class UtilityPage extends UI {
               Card(
                 margin: const EdgeInsets.all(16),
                 elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                shape: RoundedRectangleBorder(
+                  borderRadius: borderRadius,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -65,7 +64,9 @@ class UtilityPage extends UI {
               Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                shape: RoundedRectangleBorder(
+                  borderRadius: borderRadius,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -99,7 +100,8 @@ class UtilityPage extends UI {
                           ),
                           const SizedBox(width: 16),
                           Switch(
-                            value: utilityBloc.utility.isPoweringLoads,
+                            value:
+                                utilityBloc.utility.isPoweringLoads,
                             onChanged: (_) => utilityBloc.toggle(),
                             activeColor: Colors.blue,
                           ),

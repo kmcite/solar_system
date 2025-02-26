@@ -5,11 +5,12 @@ final batteryRepository = BatteryRepository();
 class BatteryRepository {
   final batteryRM = RM.inject(
     () => Battery(),
-    persist: () => PersistState(
-      key: 'battery',
-      toJson: (s) => jsonEncode(s.toJson()),
-      fromJson: (json) => Battery.fromJson(jsonDecode(json)),
-    ),
+    persist:
+        () => PersistState(
+          key: 'battery',
+          toJson: (s) => jsonEncode(s.toJson()),
+          fromJson: (json) => Battery.fromJson(jsonDecode(json)),
+        ),
   );
   Battery battery([Battery? value]) {
     if (value != null)
@@ -41,12 +42,12 @@ class Battery {
   int maximumCapacity = 5000;
   int currentCapacity = 1500;
   Map<String, dynamic> toJson() => {
-        "isPoweringLoads": isPoweringLoads,
-        // "chargingRate": chargingRate,
-        "isCharging": isCharging,
-        "maximumCapacity": maximumCapacity,
-        "currentCapacity": currentCapacity,
-      };
+    "isPoweringLoads": isPoweringLoads,
+    // "chargingRate": chargingRate,
+    "isCharging": isCharging,
+    "maximumCapacity": maximumCapacity,
+    "currentCapacity": currentCapacity,
+  };
 
   Battery.fromJson(Map<String, dynamic> json) {
     isPoweringLoads = json['isPoweringLoads'] ?? false;

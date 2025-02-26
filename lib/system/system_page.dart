@@ -9,19 +9,35 @@ import 'utility/utility_page.dart';
 final systemBloc = SystemBloc();
 
 class SystemBloc {
-  double get flow => flowRepository.flowRM.state;
+  double flow = 0;
+  SystemBloc() {
+    flowRepository.register((_flow) {
+      flow = _flow;
+      print('onFlow:SystemBloc');
+    });
+  }
+
   bool get dark => darkRepository.dark;
   late final toggleDark = darkRepository.toggleDark;
   bool get inverterStatus => inverterRepository.status;
   late final toggleInverterStatus = inverterRepository.toggle;
-  int get activeInverterCapacity =>
-      (inverterRepository.capacity * flowRepository.flow).toInt();
 
-  bool get isFlowPaused => flowRepository.isFlowPaused;
+  bool get flowing => flowRepository.flowing;
   void toggleFlow() {
-    if (isFlowPaused) flowRepository.resume();
-    flowRepository.pause();
+    if (flowing) {
+      flowRepository.pause();
+    } else {
+      flowRepository.resume();
+    }
   }
+
+  int get currentFlowProduction =>
+      (flowRepository.flow / inverterRepository.capacity).toInt();
+
+  int get tempStorageCapacity =>
+      flowRepository.temporaryStorage.capacity;
+  int get tempStorage => flowRepository.temporaryStorage.storage;
+  double get storage => tempStorage / tempStorageCapacity;
 }
 
 class SystemPage extends UI {
@@ -36,15 +52,17 @@ class SystemPage extends UI {
           FButton.icon(
             onPress: systemBloc.toggleFlow,
             child: FIcon(
-              systemBloc.isFlowPaused
-                  ? FAssets.icons.zapOff
-                  : FAssets.icons.zap,
+              systemBloc.flowing
+                  ? FAssets.icons.zap
+                  : FAssets.icons.zapOff,
             ),
           ),
           FButton.icon(
             onPress: systemBloc.toggleDark,
             child: FIcon(
-              systemBloc.dark ? FAssets.icons.moon : FAssets.icons.sun,
+              systemBloc.dark
+                  ? FAssets.icons.moon
+                  : FAssets.icons.sun,
             ),
           ),
         ],
@@ -61,40 +79,27 @@ class SystemPage extends UI {
                   constraints: context.theme.progressStyle.constraints
                       .copyWith(maxHeight: 40),
                   backgroundDecoration:
-                      context.theme.progressStyle.backgroundDecoration,
+                      context
+                          .theme
+                          .progressStyle
+                          .backgroundDecoration,
                   progressDecoration:
                       context.theme.progressStyle.progressDecoration,
                 ),
               ).pad(),
-              systemBloc.activeInverterCapacity.text(),
+              systemBloc.currentFlowProduction.text(),
             ],
           ),
-          TweenAnimationBuilder(
-            tween: Tween<double>(
-              begin: systemBloc.flow,
-              end: 0 / 2,
+          FProgress(
+            value: systemBloc.storage,
+            style: FProgressStyle(
+              constraints: context.theme.progressStyle.constraints
+                  .copyWith(maxHeight: 40),
+              backgroundDecoration:
+                  context.theme.progressStyle.backgroundDecoration,
+              progressDecoration:
+                  context.theme.progressStyle.progressDecoration,
             ),
-            duration: 750.milliseconds,
-            builder: (context, value, child) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  FProgress(
-                    value: value,
-                    style: FProgressStyle(
-                      constraints: context.theme.progressStyle.constraints
-                          .copyWith(maxHeight: 40),
-                      backgroundDecoration:
-                          context.theme.progressStyle.backgroundDecoration,
-                      progressDecoration:
-                          context.theme.progressStyle.progressDecoration,
-                    ),
-                  ),
-                  child!,
-                ],
-              );
-            },
-            child: ' ${100}% '.text().pad(),
           ).pad(),
           // Inverter
           Row(
@@ -122,7 +127,9 @@ class SystemPage extends UI {
                     },
                     child: FIcon(FAssets.icons.batteryFull),
                   ).pad(),
-                  "BATTERY".text(style: TextStyle(fontSize: 20)).pad(),
+                  "BATTERY"
+                      .text(style: TextStyle(fontSize: 20))
+                      .pad(),
                   Spacer(),
                   FSwitch(
                     value: batteryRepository.isPoweringLoads(),
@@ -180,6 +187,7 @@ class SystemPage extends UI {
               ),
             ],
           ).pad(),
+          flowRepository.temporaryStorage.text(),
         ],
       ),
     );

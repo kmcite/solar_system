@@ -1,13 +1,22 @@
 import 'package:solar_system/navigator.dart';
 import 'package:solar_system/main.dart';
+import 'package:solar_system/system/flow_repository.dart';
 
 class LoadsBloc {
+  LoadsBloc() {
+    flowRepository.register((_) {
+      final effectiveStorageUse = loads.loads;
+      flowRepository.useStorage(effectiveStorageUse);
+      print('onFlow:LoadsBloc');
+    });
+  }
   final loadsRM = RM.inject(() => Loads());
 
   Loads get loads => loadsRM.state;
-  set loads(Loads value) => loadsRM
-    ..state = value
-    ..notify();
+  set loads(Loads value) =>
+      loadsRM
+        ..state = value
+        ..notify();
 
   void increaseLoad([int amount = 1]) {
     loads = loads..loads += amount;
@@ -48,9 +57,10 @@ class LoadsPage extends UI {
           ),
           FButton(
             onPress: loadsBloc.toggle,
-            label: loadsBloc.status()
-                ? FIcon(FAssets.icons.zapOff)
-                : FIcon(FAssets.icons.zap),
+            label:
+                loadsBloc.status()
+                    ? FIcon(FAssets.icons.zapOff)
+                    : FIcon(FAssets.icons.zap),
           ),
         ],
       ),

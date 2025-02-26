@@ -5,10 +5,7 @@ class Panels {
   int currentPower = 100;
 
   Map<String, dynamic> toJson() {
-    return {
-      "status": status,
-      "currentPower": currentPower,
-    };
+    return {"status": status, "currentPower": currentPower};
   }
 
   Panels.fromJson(Map<String, dynamic> json) {
@@ -26,12 +23,14 @@ class PanelsBloc {
   bool get status => panels.status;
   int get currentPower => panels.currentPower;
 
-  set panels(Panels value) => panelsRM
-    ..state = value
-    ..notify();
+  set panels(Panels value) =>
+      panelsRM
+        ..state = value
+        ..notify();
 
   void toggle() => panels = panels..status = !status;
-  void increasePower(int amount) => panels = panels..currentPower += amount;
+  void increasePower(int amount) =>
+      panels = panels..currentPower += amount;
 }
 
 final panelsBloc = PanelsBloc();
