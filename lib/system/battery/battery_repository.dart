@@ -1,6 +1,8 @@
 import 'package:manager/manager.dart';
 
-class BatteryBloc {
+final batteryRepository = BatteryRepository();
+
+class BatteryRepository {
   final batteryRM = RM.inject(
     () => Battery(),
     persist: () => PersistState(
@@ -9,38 +11,33 @@ class BatteryBloc {
       fromJson: (json) => Battery.fromJson(jsonDecode(json)),
     ),
   );
-
-  Battery get battery => batteryRM.state;
-  bool get isPoweringLoads => battery.isPoweringLoads;
-  int get currentCapacity => battery.currentCapacity;
-  int get maximumCapacity => battery.maximumCapacity;
-
-  void togglePower() {
-    batteryRM.state = battery..isPoweringLoads = !battery.isPoweringLoads;
-    batteryRM.notify();
+  Battery battery([Battery? value]) {
+    if (value != null)
+      batteryRM
+        ..state = value
+        ..notify();
+    return batteryRM.state;
   }
 
-  void charge(int amount) {
-    batteryRM.state = battery
-      ..currentCapacity = (currentCapacity + amount).clamp(0, maximumCapacity);
-    batteryRM.notify();
+  bool isPoweringLoads([bool? value]) {
+    if (value != null) battery(battery()..isPoweringLoads = value);
+    return battery().isPoweringLoads;
   }
 
-  void discharge(int amount) {
-    batteryRM.state = battery
-      ..currentCapacity = (currentCapacity - amount).clamp(0, maximumCapacity);
-    batteryRM.notify();
+  int currentCapacity([int? value]) {
+    if (value != null) battery(battery()..currentCapacity = value);
+    return battery().currentCapacity;
   }
 
-  void toggle() {}
+  int maximumCapacity([int? value]) {
+    if (value != null) battery(battery()..maximumCapacity = value);
+    return battery().maximumCapacity;
+  }
 }
-
-final batteryBloc = BatteryBloc();
 
 class Battery {
   bool isPoweringLoads = false;
   bool isCharging = false;
-
   int maximumCapacity = 5000;
   int currentCapacity = 1500;
   Map<String, dynamic> toJson() => {

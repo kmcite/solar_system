@@ -1,5 +1,6 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:manager/manager.dart';
+
+import '../../main.dart';
 
 class PanelPage extends UI {
   Widget build(BuildContext context) {

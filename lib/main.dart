@@ -1,14 +1,16 @@
 export 'package:flutter/material.dart';
-export 'package:solar_system/system/battery/battery_bloc.dart';
-export 'package:solar_system/system/inverter/inverter_bloc.dart';
+export 'package:solar_system/system/battery/battery_repository.dart';
+export 'package:solar_system/system/inverter/inverter_repository.dart';
 export 'package:solar_system/system/panel/panel_bloc.dart';
-import 'package:forui/forui.dart';
-import 'package:manager/manager.dart';
+export 'package:forui/forui.dart';
+export 'package:manager/manager.dart';
+export 'package:solar_system/main.dart';
+import 'package:solar_system/navigator.dart';
+import 'package:solar_system/system/system_page.dart';
 
-import 'system/system_page.dart';
+import 'main.dart';
 export 'dart:convert';
 export 'package:flutter/foundation.dart';
-export 'package:freezed_annotation/freezed_annotation.dart';
 export 'package:solar_system/system/utility/utility.dart';
 export 'package:uuid/uuid.dart';
 export 'system/load/loads.dart';
@@ -19,6 +21,8 @@ void main() async {
   runApp(App());
 }
 
+typedef UI = ReactiveStatelessWidget;
+
 class App extends UI {
   const App({super.key});
 
@@ -27,40 +31,13 @@ class App extends UI {
     return MaterialApp(
       navigatorKey: navigator.navigatorKey,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Monaspace Krypton',
-      ),
-      builder: (context, child) => FTheme(
-        data: FThemes.yellow.dark,
-        child: child!,
-      ),
+      builder: (context, child) {
+        return FTheme(
+          data: systemBloc.dark ? FThemes.green.dark : FThemes.yellow.light,
+          child: child!,
+        );
+      },
       home: SystemPage(),
     );
   }
-}
-
-final navigator = RM.navigate;
-
-class Button extends UI {
-  const Button({
-    super.key,
-    this.onPressed,
-    this.child,
-  });
-  final Widget? child;
-  final void Function()? onPressed;
-  @override
-  Widget build(BuildContext context) {
-    return FButton(
-      onPress: onPressed,
-      label: child ?? SizedBox(),
-    );
-  }
-
-  const Button.icon({
-    required void Function()? onPressed,
-    required Widget icon,
-  })  : onPressed = onPressed,
-        child = icon;
 }

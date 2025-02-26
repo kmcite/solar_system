@@ -1,5 +1,4 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:manager/manager.dart';
 import 'package:solar_system/main.dart';
 
 final borderRadius = BorderRadius.circular(8);
