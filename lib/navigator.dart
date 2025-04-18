@@ -1,3 +1,3 @@
-import 'package:solar_system/main.dart';
+import 'package:states_rebuilder/states_rebuilder.dart';
 
 final navigator = RM.navigate;
