@@ -1,45 +1,44 @@
 export 'package:flutter/material.dart';
 export 'package:forui/forui.dart';
-// export 'package:manager/manager.dart';
-import 'package:solar_system/domain/apis/dark_repository.dart';
+export 'package:manager/manager.dart';
+import 'package:manager/dark/dark_repository.dart';
 import 'package:solar_system/domain/apis/flow_repository.dart';
 import 'package:solar_system/domain/apis/panels_repository.dart';
+import 'package:solar_system/domain/apis/settings_repository.dart';
 import 'package:solar_system/domain/apis/utility_repository.dart';
-import 'package:solar_system/domain/models/battery.dart';
 import 'package:solar_system/domain/models/inverter.dart';
 import 'package:solar_system/navigator.dart';
 import 'package:solar_system/objectbox.g.dart';
 import 'package:solar_system/features/home/home_page.dart';
 export 'package:states_rebuilder/states_rebuilder.dart';
 
-import 'domain/apis/loads_repository.dart';
 import 'main.dart';
 export 'dart:convert';
 export 'package:flutter/foundation.dart';
 export 'package:uuid/uuid.dart';
 
 void main() async {
-  await openStore(directory: 'solar_system');
-  runApp(App());
+  manager(
+    App(),
+    openStore: openStore,
+  );
 }
 
-mixin AppBloc {
-  bool get dark => darkRepository.dark;
-}
+bool get _dark => darkRepository.dark;
 
-class App extends GUI with AppBloc {
+class App extends GUI {
   const App({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: navigator.navigatorKey,
       debugShowCheckedModeBanner: false,
-      builder: (context, child) {
-        return FTheme(
-          data: dark ? FThemes.green.dark : FThemes.yellow.light,
-          child: child!,
-        );
-      },
+      // builder: (context, child) {
+      //   return FTheme(
+      //     data: _dark ? FThemes.green.dark : FThemes.yellow.light,
+      //     child: child!,
+      //   );
+      // },
       theme: ThemeData(
         fontFamily: 'Cascadia Code',
       ),
@@ -50,8 +49,12 @@ class App extends GUI with AppBloc {
           primarySwatch: Colors.purple,
           brightness: Brightness.dark,
         ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+        ),
+        scaffoldBackgroundColor: Colors.black,
       ),
-      themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
       home: HomePage(),
     );
   }
@@ -60,13 +63,16 @@ class App extends GUI with AppBloc {
 abstract class GUI extends StatefulWidget {
   const GUI({super.key});
   List<Listenable> get listenables => [
+        // foreign
         darkRepository,
-        battery,
+        // local
+        settingsRepository,
         flowRepository,
-        inverter,
-        loadsRepository,
+        inverterRepository,
         panelsRepository,
         utilityRepository,
+        //global
+        globalNotifier,
       ];
 
   Widget build(BuildContext context);
@@ -84,15 +90,10 @@ class _GUI extends State<GUI> {
   }
 }
 
-extension WidgetX on Widget {
-  Widget pad({double? right, double? all}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: this,
-    );
-  }
+final globalNotifier = GlobalNotifier();
+
+class GlobalNotifier extends ChangeNotifier {
+  void notify() => this.notifyListeners();
 }
 
-extension AnyX on dynamic {
-  Widget text({TextStyle? style}) => Text(toString(), style: style);
-}
+void notifyListeners() => globalNotifier.notify();

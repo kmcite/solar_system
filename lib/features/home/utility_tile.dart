@@ -1,12 +1,19 @@
 import 'package:solar_system/domain/apis/loads_repository.dart';
 import 'package:solar_system/domain/apis/utility_repository.dart';
+import 'package:solar_system/domain/models/inverter.dart';
 import 'package:solar_system/main.dart';
 
 mixin UtilityBloc {
   bool get utilityStatus => utilityRepository.status;
   int get voltage => utilityRepository.voltage;
   late final toggleUtility = utilityRepository.toggle;
-  double get powerUsed => loadsRepository.totalLoad;
+  double get powerUsed {
+    return switch (inverterRepository.status) {
+      InverterStatus.utility => loadsRepository.totalLoad,
+      _ => 0,
+    };
+  }
+
   int get current {
     return utilityStatus ? loadsRepository.totalLoad ~/ voltage : 0;
   }

@@ -1,11 +1,13 @@
+import 'package:manager/dark/dark_repository.dart';
 import 'package:solar_system/domain/apis/flow_repository.dart';
+import 'package:solar_system/features/settings/settings.dart';
 import 'package:solar_system/main.dart';
 import 'package:solar_system/features/home/backup_tile.dart';
 import 'package:solar_system/features/home/inverter_tile.dart';
-import 'package:solar_system/features/home/loads_tile.dart';
+import 'package:solar_system/features/home/loads_tile/loads_tile.dart';
 import 'package:solar_system/features/home/panels_tile.dart';
 import 'package:solar_system/features/home/utility_tile.dart';
-import '../../domain/apis/dark_repository.dart';
+import 'package:solar_system/navigator.dart';
 
 mixin SystemBloc {
   bool get dark => darkRepository.dark;
@@ -34,6 +36,10 @@ class HomePage extends GUI with SystemBloc {
           IconButton(
             onPressed: toggleDark,
             icon: Icon(dark ? Icons.dark_mode : Icons.light_mode),
+          ),
+          IconButton(
+            onPressed: () => navigator.to(SettingsPage()),
+            icon: Icon(Icons.settings),
           ).pad(right: 8),
         ],
       ),

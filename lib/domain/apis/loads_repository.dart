@@ -3,7 +3,7 @@ import 'package:solar_system/main.dart';
 
 final loadsRepository = LoadsRepository();
 
-class LoadsRepository extends ChangeNotifier {
+class LoadsRepository {
   Map<int, Load> _loads = {};
   void put(Load load) {
     _loads[load.id] = load;
@@ -23,7 +23,7 @@ class LoadsRepository extends ChangeNotifier {
     return _loads.values.fold(
       0,
       (sum, load) {
-        return sum + load.powerUsage;
+        return sum + load.power.powerUsage;
       },
     );
   }

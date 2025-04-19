@@ -17,8 +17,8 @@ dependencies:
   flutter_native_splash: ^2.4.1
   package_info_plus: ^8.0.0
   font_awesome_flutter: ^10.7.0
-  # manager:
-  #   path: ..//manager
+  manager:
+    path: ..//manager
   equatable: ^2.0.7
   objectbox: ^4.2.0
   objectbox_generator: ^4.2.0

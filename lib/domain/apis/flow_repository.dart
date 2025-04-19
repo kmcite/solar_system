@@ -15,7 +15,6 @@ class FlowRepository with ChangeNotifier {
     final random = Random();
     final sixtyToHundred = random.nextInt(40) + 60;
     final value = sixtyToHundred / 100;
-    print(value);
     if (flowing) {
       this
         ..unusable = 0
@@ -25,7 +24,6 @@ class FlowRepository with ChangeNotifier {
         ..unusable = value
         ..percentage = 0;
     }
-    print('$percentage:$unusable');
     notifyListeners();
   }
 

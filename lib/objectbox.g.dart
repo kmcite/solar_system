@@ -14,40 +14,11 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'domain/models/load.dart';
 import 'domain/models/panel.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
 final _entities = <obx_int.ModelEntity>[
-  obx_int.ModelEntity(
-    id: const obx_int.IdUid(1, 5947939586222080557),
-    name: 'Load',
-    lastPropertyId: const obx_int.IdUid(3, 8481069850091346277),
-    flags: 0,
-    properties: <obx_int.ModelProperty>[
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 6501507133887046237),
-        name: 'id',
-        type: 6,
-        flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 1640975322739842657),
-        name: 'powerUsage',
-        type: 6,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 8481069850091346277),
-        name: 'name',
-        type: 9,
-        flags: 0,
-      ),
-    ],
-    relations: <obx_int.ModelRelation>[],
-    backlinks: <obx_int.ModelBacklink>[],
-  ),
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 476960194934305973),
     name: 'Panel',
@@ -114,12 +85,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastIndexId: const obx_int.IdUid(0, 0),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
-    retiredEntityUids: const [1229923049378453407],
+    retiredEntityUids: const [1229923049378453407, 5947939586222080557],
     retiredIndexUids: const [],
     retiredPropertyUids: const [
       8401419522583034495,
       2424792787735869965,
       5168146185015165499,
+      6501507133887046237,
+      1640975322739842657,
+      8481069850091346277,
     ],
     retiredRelationUids: const [],
     modelVersion: 5,
@@ -128,45 +102,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
   );
 
   final bindings = <Type, obx_int.EntityDefinition>{
-    Load: obx_int.EntityDefinition<Load>(
-      model: _entities[0],
-      toOneRelations: (Load object) => [],
-      toManyRelations: (Load object) => {},
-      getId: (Load object) => object.id,
-      setId: (Load object, int id) {
-        object.id = id;
-      },
-      objectToFB: (Load object, fb.Builder fbb) {
-        final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(4);
-        fbb.addInt64(0, object.id);
-        fbb.addInt64(1, object.powerUsage);
-        fbb.addOffset(2, nameOffset);
-        fbb.finish(fbb.endTable());
-        return object.id;
-      },
-      objectFromFB: (obx.Store store, ByteData fbData) {
-        final buffer = fb.BufferContext(fbData);
-        final rootOffset = buffer.derefObject(0);
-
-        final object =
-            Load()
-              ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-              ..powerUsage = const fb.Int64Reader().vTableGet(
-                buffer,
-                rootOffset,
-                6,
-                0,
-              )
-              ..name = const fb.StringReader(
-                asciiOptimization: true,
-              ).vTableGet(buffer, rootOffset, 8, '');
-
-        return object;
-      },
-    ),
     Panel: obx_int.EntityDefinition<Panel>(
-      model: _entities[1],
+      model: _entities[0],
       toOneRelations: (Panel object) => [],
       toManyRelations: (Panel object) => {},
       getId: (Panel object) => object.id,
@@ -202,27 +139,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
   return obx_int.ModelDefinition(model, bindings);
 }
 
-/// [Load] entity fields to define ObjectBox queries.
-class Load_ {
-  /// See [Load.id].
-  static final id = obx.QueryIntegerProperty<Load>(_entities[0].properties[0]);
-
-  /// See [Load.powerUsage].
-  static final powerUsage = obx.QueryIntegerProperty<Load>(
-    _entities[0].properties[1],
-  );
-
-  /// See [Load.name].
-  static final name = obx.QueryStringProperty<Load>(_entities[0].properties[2]);
-}
-
 /// [Panel] entity fields to define ObjectBox queries.
 class Panel_ {
   /// See [Panel.id].
-  static final id = obx.QueryIntegerProperty<Panel>(_entities[1].properties[0]);
+  static final id = obx.QueryIntegerProperty<Panel>(_entities[0].properties[0]);
 
   /// See [Panel.powerCapacity].
   static final powerCapacity = obx.QueryIntegerProperty<Panel>(
-    _entities[1].properties[1],
+    _entities[0].properties[1],
   );
 }

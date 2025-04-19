@@ -3,8 +3,8 @@ import 'package:solar_system/domain/models/panel.dart';
 import 'package:solar_system/main.dart';
 
 mixin PanelsBloc {
-  Iterable<Panel> get panels => panelsRepository.panels;
-  int get panelsPowerCapacity => panelsRepository.powerCapacity;
+  final panels = panelsRepository.call;
+  double get panelsPowerCapacity => panelsRepository.powerCapacity;
   final remove = panelsRepository.remove;
 }
 
@@ -23,13 +23,13 @@ class PanelsTile extends GUI with PanelsBloc {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Total Power Capacity: $panelsPowerCapacity kW'),
+          Text('Total Power Capacity: $panelsPowerCapacity W'),
           const SizedBox(height: 8),
           Wrap(
             spacing: 16,
             runSpacing: 16,
             children: [
-              ...panels.map(
+              ...panels().map(
                 (panel) {
                   return GestureDetector(
                     onTap: () {
@@ -63,7 +63,7 @@ class PanelsTile extends GUI with PanelsBloc {
       trailing: IconButton(
         onPressed: () {
           panelsRepository.put(
-            Panel()..id = DateTime.now().microsecondsSinceEpoch,
+            Panel(),
           );
         },
         icon: const Icon(Icons.add_circle,

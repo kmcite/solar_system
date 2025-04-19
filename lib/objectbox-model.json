@@ -4,30 +4,6 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:5947939586222080557",
-      "lastPropertyId": "3:8481069850091346277",
-      "name": "Load",
-      "properties": [
-        {
-          "id": "1:6501507133887046237",
-          "name": "id",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:1640975322739842657",
-          "name": "powerUsage",
-          "type": 6
-        },
-        {
-          "id": "3:8481069850091346277",
-          "name": "name",
-          "type": 9
-        }
-      ],
-      "relations": []
-    },
-    {
       "id": "2:476960194934305973",
       "lastPropertyId": "2:1729978033304523104",
       "name": "Panel",
@@ -54,13 +30,17 @@
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [
-    1229923049378453407
+    1229923049378453407,
+    5947939586222080557
   ],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
     8401419522583034495,
     2424792787735869965,
-    5168146185015165499
+    5168146185015165499,
+    6501507133887046237,
+    1640975322739842657,
+    8481069850091346277
   ],
   "retiredRelationUids": [],
   "version": 1

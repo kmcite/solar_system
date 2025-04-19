@@ -1,14 +1,28 @@
+import 'package:solar_system/domain/apis/loads_repository.dart';
+import 'package:solar_system/domain/apis/panels_repository.dart';
 import 'package:solar_system/domain/models/battery.dart';
 import 'package:solar_system/domain/models/inverter.dart';
 import 'package:solar_system/features/home/battery_charge.dart';
 import 'package:solar_system/main.dart';
 
-extension on BackupTile {
-  double get current => inverter.status.powerUsage / battery.voltage;
-
-  double get voltage => battery.voltage;
-  double get capacity => battery.capacity;
+double _powerUsage(InverterStatus status) {
+  return switch (status) {
+    InverterStatus.battery =>
+      loadsRepository.totalLoad - batteryRepository.netPower,
+    InverterStatus.solar =>
+      loadsRepository.totalLoad - panelsRepository.powerCapacity,
+    InverterStatus.utility => loadsRepository.totalLoad,
+    InverterStatus.off => 0,
+  };
 }
+
+double get _current {
+  return _powerUsage(inverterRepository.status) /
+      batteryRepository.voltage;
+}
+
+double get _voltage => batteryRepository.voltage;
+double get _capacity => batteryRepository.capacity;
 
 class BackupTile extends GUI {
   const BackupTile({super.key});
@@ -28,11 +42,12 @@ class BackupTile extends GUI {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('Manage your backup batteries'),
+          Text('${batteryRepository.state}'),
           Row(
             children: [
               Text('Battery: '),
               Badge(
-                label: battery.remainingCapacity
+                label: batteryRepository.remainingCapacity
                     .toStringAsFixed(2)
                     .text(),
                 backgroundColor: Colors.yellow,
@@ -44,7 +59,7 @@ class BackupTile extends GUI {
             children: [
               Text('Voltage: '),
               Badge(
-                label: voltage.toStringAsFixed(2).text(),
+                label: _voltage.toStringAsFixed(2).text(),
                 backgroundColor: Colors.green,
               ),
               Text(' V'),
@@ -54,7 +69,7 @@ class BackupTile extends GUI {
             children: [
               Text('Current: '),
               Badge(
-                label: current.toStringAsFixed(2).text(),
+                label: _current.toStringAsFixed(2).text(),
                 backgroundColor: Colors.red,
               ),
               Text(' A'),
@@ -63,7 +78,7 @@ class BackupTile extends GUI {
           SizedBox(height: 8),
         ],
       ),
-      trailing: batteryByRemainingCapacity(capacity),
+      trailing: batteryByRemainingCapacity(_capacity),
     );
   }
 }
