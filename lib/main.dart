@@ -1,99 +1,120 @@
 export 'package:flutter/material.dart';
 export 'package:forui/forui.dart';
-export 'package:manager/manager.dart';
-import 'package:manager/dark/dark_repository.dart';
-import 'package:solar_system/domain/apis/flow_repository.dart';
-import 'package:solar_system/domain/apis/panels_repository.dart';
-import 'package:solar_system/domain/apis/settings_repository.dart';
-import 'package:solar_system/domain/apis/utility_repository.dart';
-import 'package:solar_system/domain/models/inverter.dart';
-import 'package:solar_system/navigator.dart';
-import 'package:solar_system/objectbox.g.dart';
-import 'package:solar_system/features/home/home_page.dart';
-export 'package:states_rebuilder/states_rebuilder.dart';
+export 'package:solar_system/utils/navigator.dart';
+
+import 'package:solar_system/v3/home.dart';
 
 import 'main.dart';
+import 'v3/colleagues/inverter.dart';
 export 'dart:convert';
 export 'package:flutter/foundation.dart';
 export 'package:uuid/uuid.dart';
 
 void main() async {
-  manager(
-    App(),
-    openStore: openStore,
-  );
+  runApp(SolarSystemApp());
 }
 
-bool get _dark => darkRepository.dark;
+double get magic => 16.0;
 
-class App extends GUI {
-  const App({super.key});
+class SolarSystemApp extends UI {
+  const SolarSystemApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: navigator.navigatorKey,
       debugShowCheckedModeBanner: false,
-      // builder: (context, child) {
-      //   return FTheme(
-      //     data: _dark ? FThemes.green.dark : FThemes.yellow.light,
-      //     child: child!,
-      //   );
-      // },
       theme: ThemeData(
-        fontFamily: 'Cascadia Code',
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.blue,
+        ),
+        fontFamily: 'Monoid',
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(magic),
+          ),
+        ),
+        dialogTheme: DialogThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(magic),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(magic),
+            ),
+          ),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(magic),
+            ),
+          ),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(magic),
+          ),
+        ),
       ),
       darkTheme: ThemeData(
-        fontFamily: 'Cascadia Code',
+        fontFamily: 'Monoid',
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.purple,
           brightness: Brightness.dark,
         ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.black,
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(magic),
+          ),
         ),
-        scaffoldBackgroundColor: Colors.black,
+        dialogTheme: DialogThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(magic),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(magic),
+            ),
+          ),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(magic),
+            ),
+          ),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(magic),
+          ),
+        ),
       ),
-      themeMode: _dark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: inverter.dark() ? ThemeMode.dark : ThemeMode.light,
       home: HomePage(),
+      builder: (context, child) {
+        return FTheme(
+          data: inverter.dark() ? FThemes.blue.dark : FThemes.green.light,
+          child: child!,
+        );
+      },
     );
   }
-}
 
-abstract class GUI extends StatefulWidget {
-  const GUI({super.key});
-  List<Listenable> get listenables => [
-        // foreign
-        darkRepository,
-        // local
-        settingsRepository,
-        flowRepository,
-        inverterRepository,
-        panelsRepository,
-        utilityRepository,
-        //global
-        globalNotifier,
-      ];
-
-  Widget build(BuildContext context);
   @override
-  State<StatefulWidget> createState() => _GUI();
-}
+  void initState() {
+    super.initState();
+    // appRunner.initState();
+  }
 
-class _GUI extends State<GUI> {
   @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: Listenable.merge(widget.listenables),
-      builder: (context, child) => widget.build(context),
-    );
+  void dispose() {
+    // appRunner.dispose();
+    super.dispose();
   }
 }
-
-final globalNotifier = GlobalNotifier();
-
-class GlobalNotifier extends ChangeNotifier {
-  void notify() => this.notifyListeners();
-}
-
-void notifyListeners() => globalNotifier.notify();

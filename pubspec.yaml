@@ -1,12 +1,11 @@
 name: solar_system
-description: A Very Good App
+description: A solar system simulator.
 version: 0.0.1
 publish_to: none
 environment:
   sdk: ^3.6.0
 dependencies:
-  states_rebuilder: ^6.4.0
-  forui: ^0.10.0+1
+  forui: 
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
@@ -17,13 +16,8 @@ dependencies:
   flutter_native_splash: ^2.4.1
   package_info_plus: ^8.0.0
   font_awesome_flutter: ^10.7.0
-  manager:
-    path: ..//manager
-  equatable: ^2.0.7
-  objectbox: ^4.2.0
-  objectbox_generator: ^4.2.0
-  objectbox_flutter_libs: ^4.2.0
   faker: ^2.2.0
-  build_runner:
+  signals_flutter: ^6.0.2
+  navigation_builder: ^0.0.4
 flutter:
   uses-material-design: true
