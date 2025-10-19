@@ -1,6 +1,5 @@
 import 'package:solar_system/domain/inverter_repository.dart';
 import 'package:solar_system/domain/panels_repository.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 import '../../main.dart';
 
@@ -26,7 +25,7 @@ class PanelsBloc extends Cubit<PanelsState> {
 
   void onPanelAdded() async {
     emit(state..loading = true);
-    await panelsRepository.put(Panel());
+    // await panelsRepository.put(Panel());
     emit(
       state
         ..loading = false
@@ -40,7 +39,7 @@ class PanelsBloc extends Cubit<PanelsState> {
         ..loading = true
         ..panelsToBeRemoved.add(panel.id),
     );
-    await panelsRepository.remove(panel);
+    // await panelsRepository.remove(panel);
     emit(
       state
         ..loading = false
@@ -55,7 +54,7 @@ class PanelsTile extends Feature<PanelsBloc> {
   PanelsBloc create() => PanelsBloc();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FTile(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,6 +1,5 @@
 import 'package:solar_system/domain/inverter_repository.dart';
 import 'package:solar_system/main.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class InverteModeToggleBloc extends Cubit<InverterMode> {
   late InverterRepository inverterRepository = find();
@@ -17,7 +16,7 @@ class InverteModeToggleBloc extends Cubit<InverterMode> {
 
 class InverterModeToggleButton extends Feature<InverteModeToggleBloc> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FButton.icon(
       onPress: controller.onInverterModeToggled,
       child: Icon(

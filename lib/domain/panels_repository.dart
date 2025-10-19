@@ -1,6 +1,6 @@
 import 'package:faker/faker.dart';
 import 'package:objectbox/objectbox.dart';
-import 'package:solar_system/utils/crud_repository.dart';
+import 'package:solar_system/main.dart';
 
 @Entity()
 class Panel {
@@ -9,10 +9,12 @@ class Panel {
   var power = faker.randomGenerator.decimal(scale: 40, min: 560);
 }
 
-class PanelsRepository extends CrudRepository<Panel> {
+class PanelsRepository extends Repository<Iterable<Panel>> {
+  PanelsRepository() : super([]);
+
   double get totalPower => value.fold(0.0, (i, n) => i + n.power);
   double effectivePower(double solarFlow) => solarFlow * totalPower;
 
-  @override
+  // @override
   int getId(Panel item) => item.id;
 }

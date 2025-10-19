@@ -1,6 +1,5 @@
 import 'package:solar_system/domain/utility_repository.dart';
 import 'package:solar_system/main.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class UtilityToggleBloc extends Cubit<bool> {
   late UtilityRepository utilityRepository = find();
@@ -23,7 +22,7 @@ class UtilityToggleButton extends Feature<UtilityToggleBloc> {
   UtilityToggleBloc create() => UtilityToggleBloc();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FButton.icon(
       onPress: controller.onUtilityToggled,
       child: Icon(

@@ -1,3 +1,5 @@
+// ignore_for_file: override_on_non_overriding_member, unused_element
+
 import 'dart:async';
 import 'dart:math';
 
@@ -30,17 +32,16 @@ class Utility {
   }
 }
 
-class UtilityRepository extends PersistRepository<Utility> {
+class UtilityRepository extends Repository<Utility> {
   UtilityRepository() : super(Utility());
   @override
-  Future<void> init() {
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      _updateUtility,
-    );
-    return super.init();
-  }
-
+  // Future<void> init() {
+  //   _timer = Timer.periodic(
+  //     const Duration(seconds: 1),
+  //     _updateUtility,
+  //   );
+  //   return super.init();
+  // }
   /// INTERNAL LOGIC OF UTILITY
   // ignore: unused_field
   Timer? _timer;

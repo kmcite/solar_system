@@ -1,6 +1,6 @@
 import 'package:faker/faker.dart';
 import 'package:objectbox/objectbox.dart';
-import 'package:solar_system/utils/crud_repository.dart';
+import 'package:solar_system/main.dart';
 
 @Entity()
 class Load {
@@ -12,7 +12,8 @@ class Load {
   int id = 0;
 }
 
-class LoadsRepository extends CrudRepository<Load> {
+class LoadsRepository extends Repository<Iterable<Load>> {
+  LoadsRepository() : super([]);
   int getId(Load item) => item.id;
 
   double get totalLoads {

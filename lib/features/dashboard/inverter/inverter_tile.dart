@@ -5,7 +5,6 @@ import 'package:solar_system/features/dashboard/inverter/inverter_voltage_toggle
 import 'package:solar_system/main.dart';
 import 'package:solar_system/domain/flow_repository.dart';
 import 'package:solar_system/domain/inverter_repository.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class InverterState {
   double solarFlow = 0;
@@ -59,7 +58,7 @@ class InverterView extends Feature<InverterBloc> {
   @override
   InverterBloc create() => InverterBloc();
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FTile(
       title: Row(
         spacing: 8,
@@ -94,11 +93,11 @@ class InverterView extends Feature<InverterBloc> {
   }
 }
 
-class InverterInformationsView extends Feature<_IIB> {
+class InverterInformationsView extends Feature<_InverterInformationsBloc> {
   @override
-  _IIB create() => _IIB();
+  _InverterInformationsBloc create() => _InverterInformationsBloc();
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return Column(
       spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,10 +123,10 @@ class InverterInformationsView extends Feature<_IIB> {
   }
 }
 
-class _IIB extends Cubit<_IIS> {
+class _InverterInformationsBloc extends Cubit<_IIS> {
   late InverterRepository inverterRepository = find();
   late SettingsRepository settingsRepository = find();
-  _IIB() : super(_IIS());
+  _InverterInformationsBloc() : super(_IIS());
   @override
   Future<void> initState() {
     inverterRepository.stream.listen(

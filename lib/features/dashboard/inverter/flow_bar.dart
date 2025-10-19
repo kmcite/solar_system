@@ -1,6 +1,5 @@
 import 'package:solar_system/domain/flow_repository.dart';
 import 'package:solar_system/main.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class FlowBarState {
   double solarFlow = 0;
@@ -23,7 +22,7 @@ class FlowBarView extends Feature<FlowBarBloc> {
   FlowBarBloc create() => FlowBarBloc();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return Column(
       spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.start,

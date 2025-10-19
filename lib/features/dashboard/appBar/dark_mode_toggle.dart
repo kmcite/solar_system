@@ -1,6 +1,5 @@
 import 'package:solar_system/main.dart';
 import 'package:solar_system/domain/settings_repository.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class DarkModeToggleBloc extends Cubit<bool> {
   DarkModeToggleBloc() : super(false);
@@ -20,7 +19,7 @@ class DarkModeToggle extends Feature<DarkModeToggleBloc> {
   @override
   DarkModeToggleBloc create() => DarkModeToggleBloc();
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FHeaderAction(
       icon: Icon(controller() ? FIcons.sun : FIcons.moon),
       onPress: controller.onDarkToggled,

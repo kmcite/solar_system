@@ -1,7 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
-import 'dart:developer';
-
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -13,16 +9,12 @@ import 'package:solar_system/domain/loads_repository.dart';
 import 'package:solar_system/domain/panels_repository.dart';
 import 'package:solar_system/domain/settings_repository.dart';
 import 'package:solar_system/domain/utility_repository.dart';
-import 'package:solar_system/features/dashboard/appBar/flow_toggle.dart';
 import 'package:solar_system/features/dashboard/dashboard.dart';
-import 'package:solar_system/features/dashboard/inverter/flow_bar.dart';
-import 'package:solar_system/utils/bloc/bloc.dart';
-import 'package:solar_system/utils/bloc/bloc_observer.dart';
-import 'package:solar_system/utils/bloc/change.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
+import 'package:solar_system/main.dart';
+export 'package:spark/spark.dart';
+export 'package:solar_system/utils/navigator.dart';
 
 import 'domain/flow_repository.dart';
-import 'main.dart';
 import 'objectbox.g.dart';
 
 export 'dart:convert';
@@ -30,40 +22,42 @@ export 'dart:convert';
 export 'package:flutter/foundation.dart';
 export 'package:flutter/material.dart' hide Builder, State;
 export 'package:forui/forui.dart';
-export 'package:solar_system/utils/navigator.dart';
-export 'package:solar_system/utils/persist_repository.dart';
-export 'package:solar_system/utils/repository.dart';
-export 'package:solar_system/utils/state.dart';
-export 'package:solar_system/utils/locator.dart';
-
 export 'package:uuid/uuid.dart';
 
 void main() async {
-  Bloc.observer = LogBlocs();
+  // Bloc.observer = LogBlocs();
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  final appInfo = await PackageInfo.fromPlatform();
-  final path = await getApplicationDocumentsDirectory();
-  final store = await openStore(directory: join(path.path, appInfo.appName));
-  await Hive.initFlutter();
-  final hive = await Hive.openBox(appInfo.appName);
-  service(store);
-  service(hive);
-
-  repository(BatteryRepository());
-  repository(FlowRepository());
-  repository(InverterRepository());
-  repository(LoadsRepository());
-  repository(PanelsRepository());
-  repository(SettingsRepository());
-  repository(UtilityRepository());
-
-  runApp(Application());
+  runApp(SolarSystem());
 }
 
-class ApplicationBloc extends Cubit<bool> {
+class SolarSystemApp extends Application {
+  @override
+  Widget buildApp(BuildContext context) => SolarSystem();
+
+  @override
+  Future<void> init() async {
+    final appInfo = await PackageInfo.fromPlatform();
+    final path = await getApplicationDocumentsDirectory();
+    final store = await openStore(directory: join(path.path, appInfo.appName));
+    await Hive.initFlutter();
+    final hive = await Hive.openBox(appInfo.appName);
+    putService(store);
+    putService(hive);
+
+    putRepository(SettingsRepository());
+    putRepository(BatteryRepository());
+    putRepository(FlowRepository());
+    putRepository(InverterRepository());
+    putRepository(LoadsRepository());
+    putRepository(PanelsRepository());
+    putRepository(UtilityRepository());
+  }
+}
+
+class SolarSystemBloc extends Cubit<bool> {
   late SettingsRepository settingsRepository = find();
-  ApplicationBloc() : super(false) {}
+  SolarSystemBloc() : super(false) {}
 
   @override
   Future<void> initState() {
@@ -71,19 +65,19 @@ class ApplicationBloc extends Cubit<bool> {
     settingsRepository.stream.listen(
       (settings) => emit(settings.dark),
     );
-    emit(settingsRepository().dark);
+    emit(settingsRepository.state.dark);
     return super.initState();
   }
 }
 
-class Application extends Feature<ApplicationBloc> {
-  const Application({super.key});
+class SolarSystem extends Feature<SolarSystemBloc> {
+  const SolarSystem({super.key});
   @override
-  ApplicationBloc create() => ApplicationBloc();
+  SolarSystemBloc create() => SolarSystemBloc();
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return MaterialApp(
-      navigatorKey: navigator.navigatorKey,
+      navigatorKey: navigator.key,
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light().copyWith(
         progressIndicatorTheme: ProgressIndicatorThemeData(year2023: false),
@@ -99,18 +93,6 @@ class Application extends Feature<ApplicationBloc> {
           child: child!,
         );
       },
-    );
-  }
-}
-
-class LogBlocs extends BlocObserver {
-  @override
-  void onChange(BlocBase bloc, Change change) {
-    super.onChange(bloc, change);
-    if (bloc is FlowToggleBloc || bloc is FlowBarBloc) return;
-    log(
-      '${change.nextState}',
-      name: bloc.runtimeType.toString(),
     );
   }
 }

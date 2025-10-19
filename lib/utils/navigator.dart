@@ -1,8 +1,6 @@
-import 'package:navigation_builder/navigation_builder.dart';
-
 import 'package:flutter/material.dart';
 
-final navigator = NavigationBuilder.navigate;
+// final navigator = NavigationBuilder.navigate;
 
 extension DynamicExtensions on dynamic {
   Text text({

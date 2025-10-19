@@ -4,7 +4,6 @@ import 'package:solar_system/domain/settings_repository.dart';
 import 'package:solar_system/domain/utility_repository.dart';
 import 'package:solar_system/features/dashboard/utility/utility_toggle.dart';
 import 'package:solar_system/main.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class UtilityState {
   bool status = false;
@@ -84,7 +83,7 @@ class UtilityTile extends Feature<UtilityBloc> {
   UtilityBloc create() => UtilityBloc();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FTile(
       selected: controller().isUtilitySelectedForPower,
       title: Text(

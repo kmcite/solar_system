@@ -82,7 +82,4 @@ enum Voltage {
     Voltage.us => Colors.red,
     Voltage.eu => Colors.yellow,
   };
-
-  // bool get isEU => this == Voltage.eu;
-  // bool get isUS => this == Voltage.us;
 }

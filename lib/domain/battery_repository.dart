@@ -38,6 +38,6 @@ class BatteryRepository extends Repository<Battery> {
   /// - Clamps the value between `0` and [capacity].
   /// - Calls [notify] so listeners can react to state changes.
   void setCharge(double chargingPower) {
-    emit(value..charge = chargingPower.clamp(0, value.capacity));
+    emit(state..charge = chargingPower.clamp(0, state.capacity));
   }
 }

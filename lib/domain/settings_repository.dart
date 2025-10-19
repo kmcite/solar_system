@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:solar_system/utils/persist_repository.dart';
+import 'package:solar_system/main.dart';
 
 class Settings {
   bool dark = false;
@@ -21,40 +21,40 @@ class Settings {
   };
 }
 
-class SettingsRepository extends PersistRepository<Settings> {
+class SettingsRepository extends Repository<Settings> {
   SettingsRepository() : super(Settings());
-  @override
-  Future<void> init() {
-    final from = fromCache();
-    if (from != null) {
-      emit(from);
-    }
-    // print(from?.toJson());
-    return super.init();
-  }
+  // @override
+  // Future<void> init() {
+  //   final from = fromCache();
+  //   if (from != null) {
+  //     emit(from);
+  //   }
+  //   // print(from?.toJson());
+  //   return super.init();
+  // }
 
   void restoreApp() {
-    emit(value..isRestored = true);
+    emit(state..isRestored = true);
   }
 
   Future<void> toggleDark() async {
-    emit(value..dark = !value.dark);
+    emit(state..dark = !state.dark);
   }
 
   Future<void> setMoney(double newMoney) async {
-    emit(value..money = newMoney);
+    emit(state..money = newMoney);
   }
 
   Future<void> addMoney(double more) async {
-    setMoney(value.money + more);
+    setMoney(state.money + more);
   }
 
-  @override
-  Settings fromJson(Map<String, dynamic> json) => Settings.fromJson(json);
+  // @override
+  // Settings fromJson(Map<String, dynamic> json) => Settings.fromJson(json);
 
-  @override
-  String get key => 'settings';
+  // @override
+  // String get key => 'settings';
 
-  @override
-  Map<String, dynamic> toJson(Settings value) => value.toJson();
+  // @override
+  // Map<String, dynamic> toJson(Settings value) => value.toJson();
 }

@@ -22,5 +22,7 @@ dependencies:
   objectbox_generator: ^5.0.0
   objectbox_flutter_libs: ^5.0.0
   equatable: 
+  spark:
+    path: C://Users//Adn//CascadeProjects//spark
 flutter:
   uses-material-design: true

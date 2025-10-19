@@ -1,6 +1,5 @@
 import 'package:solar_system/main.dart';
 import 'package:solar_system/domain/loads_repository.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class LoadsState {
   double get runningLoads => loads.fold(
@@ -36,7 +35,7 @@ class LoadsBloc extends Cubit<LoadsState> {
         ..loadsToBeRemoved.add(load.id),
     );
 
-    await loadsRepository.remove(load);
+    // await loadsRepository.remove(load);
     emit(
       state
         ..loading = false
@@ -46,14 +45,15 @@ class LoadsBloc extends Cubit<LoadsState> {
 
   void onLoadAdded() async {
     emit(state..loading = true);
+    // ignore: unused_local_variable
     final load = Load();
-    await loadsRepository.put(load);
+    // await loadsRepository.put(load);
     emit(state..loading = false);
   }
 
   void onLoadUpdated(Load load) async {
     emit(state..loading = true);
-    await loadsRepository.put(load);
+    // await loadsRepository.put(load);
     emit(state..loading = false);
   }
 }
@@ -63,7 +63,7 @@ class LoadsTile extends Feature<LoadsBloc> {
   LoadsBloc create() => LoadsBloc();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FTile(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -6,7 +6,6 @@ import 'package:solar_system/domain/battery_repository.dart';
 import 'package:solar_system/domain/flow_repository.dart';
 import 'package:solar_system/domain/inverter_repository.dart';
 import 'package:solar_system/main.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class BatteryState {
   bool isBatteryMode = false;
@@ -91,7 +90,7 @@ class BatteryTile extends Feature<BatteryBloc> {
   @override
   BatteryBloc create() => BatteryBloc();
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FTile(
       title: Text(
         'Battery',

@@ -2,7 +2,6 @@ import 'package:solar_system/domain/inverter_repository.dart';
 import 'package:solar_system/main.dart';
 import 'package:solar_system/domain/panels_repository.dart';
 import 'package:solar_system/domain/settings_repository.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class SettingsState {
   bool dark = false;
@@ -34,7 +33,7 @@ class SettingsBloc extends Cubit<SettingsState> {
 
   void restoreApp() {
     settingsRepository.restoreApp();
-    panelsRepository.removeAll();
+    // panelsRepository.removeAll();
     inverterRepository.sellout();
   }
 
@@ -53,7 +52,7 @@ class SettingsPage extends Feature<SettingsBloc> {
   SettingsBloc create() => SettingsBloc();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FScaffold(
       header: FHeader(
         title: 'Settings'.text(),

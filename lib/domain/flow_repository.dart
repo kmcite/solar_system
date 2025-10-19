@@ -14,10 +14,10 @@ class FlowRepository extends Repository<Flow> {
   FlowRepository() : super(Flow());
 
   Timer? timer;
-  @override
-  Future<void> init() {
-    return super.init();
-  }
+  // @override
+  // Future<void> init() {
+  //   return super.init();
+  // }
 
   void resumeFlow() {
     emit(value..flowing = Flowing.running);

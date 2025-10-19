@@ -1,6 +1,5 @@
 import 'package:solar_system/domain/inverter_repository.dart';
 import 'package:solar_system/main.dart';
-import 'package:solar_system/utils/bloc/cubit.dart';
 
 class InverteVoltageToggleBloc extends Cubit<Voltage> {
   late InverterRepository inverterRepository = find();
@@ -16,7 +15,7 @@ class InverteVoltageToggleBloc extends Cubit<Voltage> {
 
 class InverterVoltageToggleButton extends Feature<InverteVoltageToggleBloc> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return FButton.icon(
       onPress: controller.onInverterVolatgeToggled,
       child: Icon(controller().icon, color: controller().color),

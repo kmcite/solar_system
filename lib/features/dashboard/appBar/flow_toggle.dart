@@ -1,6 +1,5 @@
 import 'package:solar_system/main.dart';
 import 'package:solar_system/domain/flow_repository.dart';
-import 'package:solar_system/utils/bloc/bloc.dart';
 
 class FlowToggleBloc extends Bloc<FlowToggleEvents, Flowing> {
   FlowToggleBloc() : super(Flowing.idle) {
@@ -31,7 +30,7 @@ class FlowTogglesView extends Feature<FlowToggleBloc> {
   @override
   FlowToggleBloc create() => FlowToggleBloc();
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, controller) {
     return Row(
       spacing: 8,
       children: [
