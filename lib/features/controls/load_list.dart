@@ -12,7 +12,7 @@ class LoadListProvider extends ChangeNotifier {
   Loads _loads = Loads();
 
   LoadListProvider() {
-    _subscription = _loadsRepository.watchLoads().listen((loads) {
+    _subscription = _loadsRepository.watch().listen((loads) {
       _loads = loads;
       notifyListeners();
     });

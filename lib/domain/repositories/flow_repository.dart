@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:faker/faker.dart';
 import '../entities/solar_flow.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for flow data access
-abstract class IFlowRepository {
+abstract class IFlowRepository extends Repository<SolarFlow> {
   /// Get current flow state
   Future<SolarFlow> getFlow();
 
   /// Update flow state
   Future<void> updateFlow(SolarFlow flow);
-
-  /// Stream flow state changes
-  Stream<SolarFlow> watchFlow();
 
   /// Start flow
   Future<void> startFlow();
@@ -32,7 +29,7 @@ abstract class IFlowRepository {
 }
 
 /// Implementation of FlowRepository using in-memory storage
-class FlowRepository extends ChangeNotifier implements IFlowRepository {
+class FlowRepository extends IFlowRepository {
   SolarFlow _flow = SolarFlow(id: 'main_flow');
   final List<SolarFlow> _history = [];
   Timer? _timer;
@@ -46,12 +43,7 @@ class FlowRepository extends ChangeNotifier implements IFlowRepository {
   Future<void> updateFlow(SolarFlow flow) async {
     _flow = flow.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_flow);
-    notifyListeners();
-  }
-
-  @override
-  Stream<SolarFlow> watchFlow() {
-    return Stream.fromIterable([_flow]).asyncMap((_) async => _flow);
+    notify(_flow);
   }
 
   @override
@@ -112,7 +104,7 @@ class FlowRepository extends ChangeNotifier implements IFlowRepository {
     _timer = null;
     _flow = SolarFlow(id: 'main_flow');
     _addToHistory(_flow);
-    notifyListeners();
+    notify(_flow);
   }
 
   // Convenience getters for backward compatibility
@@ -126,11 +118,5 @@ class FlowRepository extends ChangeNotifier implements IFlowRepository {
     if (_history.length > 1000) {
       _history.removeRange(0, _history.length - 1000);
     }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 }

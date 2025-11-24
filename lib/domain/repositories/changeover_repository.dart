@@ -1,16 +1,13 @@
-import 'package:flutter/material.dart';
 import '../entities/changeover.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for changeover data access
-abstract class IChangeoverRepository {
+abstract class IChangeoverRepository extends Repository<Changeover> {
   /// Get current changeover state
   Future<Changeover> getChangeover();
 
   /// Update changeover state
   Future<void> updateChangeover(Changeover changeover);
-
-  /// Stream changeover state changes
-  Stream<Changeover> watchChangeover();
 
   /// Switch to specific state
   Future<void> switchToState(ChangeoverState state);
@@ -30,8 +27,7 @@ abstract class IChangeoverRepository {
 }
 
 /// Implementation of ChangeoverRepository using in-memory storage
-class ChangeoverRepository extends ChangeNotifier
-    implements IChangeoverRepository {
+class ChangeoverRepository extends IChangeoverRepository {
   Changeover _changeover = Changeover(id: 'main_changeover');
   final List<Changeover> _history = [];
 
@@ -44,14 +40,7 @@ class ChangeoverRepository extends ChangeNotifier
   Future<void> updateChangeover(Changeover changeover) async {
     _changeover = changeover.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_changeover);
-    notifyListeners();
-  }
-
-  @override
-  Stream<Changeover> watchChangeover() {
-    return Stream.fromIterable([
-      _changeover,
-    ]).asyncMap((_) async => _changeover);
+    notify(_changeover);
   }
 
   @override
@@ -106,7 +95,7 @@ class ChangeoverRepository extends ChangeNotifier
   Future<void> resetChangeover() async {
     _changeover = Changeover(id: 'main_changeover');
     _addToHistory(_changeover);
-    notifyListeners();
+    notify(_changeover);
   }
 
   // Convenience getters for backward compatibility

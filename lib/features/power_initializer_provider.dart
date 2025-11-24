@@ -28,8 +28,8 @@ class PowerInitializerProvider extends ChangeNotifier {
     _updatePowerManagement();
 
     // Listen to changes in flow and inverter mode using streams
-    _flowRepo.watchFlow().listen((_) => _onFlowOrInverterChanged());
-    _inverterRepo.watchInverter().listen((_) => _onFlowOrInverterChanged());
+    _flowRepo.watch().listen((_) => _onFlowOrInverterChanged());
+    _inverterRepo.watch().listen((_) => _onFlowOrInverterChanged());
   }
 
   void _onFlowOrInverterChanged() {

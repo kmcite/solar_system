@@ -15,7 +15,7 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Solar System Dashboard'),
+        title: const Text('Solar+'),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: [
           IconButton(
@@ -30,36 +30,20 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Power System',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-
             // Solar System Components
-            const Row(
+            const Column(
               children: [
-                Expanded(child: PanelsView()),
-                SizedBox(width: 8),
-                Expanded(child: BatteryView()),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Row(
-              children: [
-                Expanded(child: InverterTile()),
-                SizedBox(width: 8),
-                Expanded(child: ChangeoverTile()),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Row(
-              children: [
-                Expanded(child: UtilityTile()),
-                SizedBox(width: 8),
-                Expanded(child: LoadsTile()),
+                PanelsView(),
+                SizedBox(height: 8),
+                BatteryView(),
+                SizedBox(height: 8),
+                InverterTile(),
+                SizedBox(height: 8),
+                ChangeoverTile(),
+                SizedBox(height: 8),
+                UtilityTile(),
+                SizedBox(height: 8),
+                LoadsTile(),
               ],
             ),
 

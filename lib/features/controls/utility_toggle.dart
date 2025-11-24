@@ -12,7 +12,7 @@ class UtilityToggleProvider extends ChangeNotifier {
   Utility _utility = Utility(id: 'main_utility');
 
   UtilityToggleProvider() {
-    _subscription = _utilityRepository.watchUtility().listen((utility) {
+    _subscription = _utilityRepository.watch().listen((utility) {
       _utility = utility;
       notifyListeners();
     });

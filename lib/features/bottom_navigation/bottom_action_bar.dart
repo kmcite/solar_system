@@ -13,7 +13,7 @@ class BottomActionBarProvider extends ChangeNotifier {
   StreamSubscription<HomeDevices>? _subscription;
 
   BottomActionBarProvider() {
-    _subscription = _homeRepository.watchHomeDevices().listen((event) {
+    _subscription = _homeRepository.watch().listen((event) {
       totalConsumption = event.totalConsumption;
       notifyListeners();
     });

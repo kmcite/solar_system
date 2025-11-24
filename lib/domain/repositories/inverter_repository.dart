@@ -1,16 +1,13 @@
-import 'package:flutter/material.dart';
 import '../entities/inverter.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for inverter data access
-abstract class IInverterRepository {
+abstract class IInverterRepository extends Repository<Inverter> {
   /// Get current inverter state
   Future<Inverter> getInverter();
 
   /// Update inverter state
   Future<void> updateInverter(Inverter inverter);
-
-  /// Stream inverter state changes
-  Stream<Inverter> watchInverter();
 
   /// Change inverter mode
   Future<void> setMode(InverterMode mode);
@@ -30,7 +27,7 @@ abstract class IInverterRepository {
 }
 
 /// Implementation of InverterRepository using in-memory storage
-class InverterRepository extends ChangeNotifier implements IInverterRepository {
+class InverterRepository extends IInverterRepository {
   Inverter _inverter = Inverter(id: 'main_inverter');
   final List<Inverter> _history = [];
 
@@ -43,12 +40,7 @@ class InverterRepository extends ChangeNotifier implements IInverterRepository {
   Future<void> updateInverter(Inverter inverter) async {
     _inverter = inverter.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_inverter);
-    notifyListeners();
-  }
-
-  @override
-  Stream<Inverter> watchInverter() {
-    return Stream.fromIterable([_inverter]).asyncMap((_) async => _inverter);
+    notify(_inverter);
   }
 
   @override
@@ -102,7 +94,7 @@ class InverterRepository extends ChangeNotifier implements IInverterRepository {
   Future<void> resetInverter() async {
     _inverter = Inverter(id: 'main_inverter');
     _addToHistory(_inverter);
-    notifyListeners();
+    notify(_inverter);
   }
 
   // Convenience getters for backward compatibility

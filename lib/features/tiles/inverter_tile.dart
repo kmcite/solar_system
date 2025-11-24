@@ -15,7 +15,7 @@ class InverterTileProvider extends ChangeNotifier {
   StreamSubscription<Inverter>? _subscription;
 
   InverterTileProvider() {
-    _subscription = _inverterRepository.watchInverter().listen(
+    _subscription = _inverterRepository.watch().listen(
       (inverter) {
         this.inverter = inverter;
         notifyListeners();

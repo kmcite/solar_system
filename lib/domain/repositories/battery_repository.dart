@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import '../entities/battery.dart';
 import '../entities/power_balance.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for battery data access
-abstract class IBatteryRepository {
+abstract class IBatteryRepository extends Repository<Battery> {
   /// Get current battery state
   Future<Battery> getBattery();
 
@@ -12,9 +12,6 @@ abstract class IBatteryRepository {
 
   /// Get current power balance
   Future<PowerBalance> getCurrentPowerBalance();
-
-  /// Stream battery state changes
-  Stream<Battery> watchBattery();
 
   /// Get battery history
   Future<List<Battery>> getBatteryHistory({
@@ -28,7 +25,7 @@ abstract class IBatteryRepository {
 }
 
 /// Implementation of BatteryRepository using in-memory storage
-class BatteryRepository extends ChangeNotifier implements IBatteryRepository {
+class BatteryRepository extends IBatteryRepository {
   Battery _battery = Battery(id: 'main_battery');
   final List<Battery> _history = [];
 
@@ -41,7 +38,7 @@ class BatteryRepository extends ChangeNotifier implements IBatteryRepository {
   Future<void> updateBattery(Battery battery) async {
     _battery = battery.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_battery);
-    notifyListeners();
+    notify(_battery);
   }
 
   @override
@@ -56,11 +53,6 @@ class BatteryRepository extends ChangeNotifier implements IBatteryRepository {
       shouldChargeBattery: false,
       shouldDischargeBattery: false,
     );
-  }
-
-  @override
-  Stream<Battery> watchBattery() {
-    return Stream.fromIterable([_battery]).asyncMap((_) async => _battery);
   }
 
   @override
@@ -94,7 +86,7 @@ class BatteryRepository extends ChangeNotifier implements IBatteryRepository {
   Future<void> resetBattery() async {
     _battery = Battery(id: 'main_battery');
     _addToHistory(_battery);
-    notifyListeners();
+    notify(_battery);
   }
 
   // Convenience getters for backward compatibility

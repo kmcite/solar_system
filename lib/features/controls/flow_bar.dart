@@ -12,7 +12,7 @@ class FlowBarProvider extends ChangeNotifier {
   SolarFlow _flow = SolarFlow(id: 'main_flow');
 
   FlowBarProvider() {
-    _subscription = _flowRepository.watchFlow().listen((flow) {
+    _subscription = _flowRepository.watch().listen((flow) {
       _flow = flow;
       notifyListeners();
     });

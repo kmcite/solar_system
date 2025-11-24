@@ -11,7 +11,7 @@ class FlowToggleProvider extends ChangeNotifier {
 
   late SolarFlow flow;
   FlowToggleProvider() {
-    _subscription = _flowRepository.watchFlow().listen((flow) {
+    _subscription = _flowRepository.watch().listen((flow) {
       this.flow = flow;
       notifyListeners();
     });

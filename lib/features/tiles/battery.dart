@@ -43,8 +43,8 @@ class BatteryProvider extends ChangeNotifier {
   /// Initialize power management system
   void _initializePowerManagement() {
     // Listen to changes in flow and inverter mode using streams
-    _flowRepository.watchFlow().listen((_) => _onFlowOrInverterChanged());
-    _inverterRepository.watchInverter().listen(
+    _flowRepository.watch().listen((_) => _onFlowOrInverterChanged());
+    _inverterRepository.watch().listen(
       (_) => _onFlowOrInverterChanged(),
     );
 
@@ -123,12 +123,12 @@ class BatteryProvider extends ChangeNotifier {
 
   /// Listen to battery changes
   void _listenToBatteryChanges() {
-    (_batteryRepository as BatteryRepository).addListener(_onBatteryChanged);
+    _batteryRepository.watch().listen(_onBatteryChanged);
   }
 
   /// Handle battery changes
-  void _onBatteryChanged() {
-    _loadBattery();
+  void _onBatteryChanged(Battery _) {
+    updateBattery(battery);
   }
 
   /// Set loading state
@@ -299,7 +299,6 @@ class BatteryProvider extends ChangeNotifier {
   @override
   void dispose() {
     stopPowerManagement(); // Stop power management timer
-    (_batteryRepository as BatteryRepository).removeListener(_onBatteryChanged);
     super.dispose();
   }
 }

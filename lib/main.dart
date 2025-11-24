@@ -20,10 +20,10 @@ void main() async {
   runApp(SolarSystemApp());
 }
 
-class DarkProvider extends ChangeNotifier {
+class SolarSystemProvider extends ChangeNotifier {
   late final ISettingsRepository _settingsRepository = find();
-  DarkProvider() {
-    _settingsRepository.watchSettings().listen(
+  SolarSystemProvider() {
+    _settingsRepository.watch().listen(
       (settings) {
         darkMode = settings.darkMode;
         notifyListeners();
@@ -40,8 +40,8 @@ class SolarSystemApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Feature(
-      created: () => DarkProvider(),
-      builder: (_, darkProvider) {
+      created: () => SolarSystemProvider(),
+      builder: (_, solarSystem) {
         FlutterNativeSplash.remove();
         return MaterialApp.router(
           routerConfig: AppRouter.router,
@@ -49,7 +49,7 @@ class SolarSystemApp extends StatelessWidget {
           title: appConfig.appName,
           theme: appConfig.lightTheme,
           darkTheme: appConfig.darkTheme,
-          themeMode: darkProvider.darkMode ? ThemeMode.dark : ThemeMode.light,
+          themeMode: solarSystem.darkMode ? ThemeMode.dark : ThemeMode.light,
         );
       },
     );

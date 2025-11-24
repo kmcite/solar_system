@@ -13,7 +13,7 @@ class ChangeoverControlProvider extends ChangeNotifier {
   Changeover _changeover = Changeover(id: 'main_changeover');
 
   ChangeoverControlProvider() {
-    _subscription = _changeoverRepository.watchChangeover().listen((
+    _subscription = _changeoverRepository.watch().listen((
       changeover,
     ) {
       _changeover = changeover;

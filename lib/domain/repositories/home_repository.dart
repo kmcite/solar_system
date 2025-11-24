@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:solar_system/domain/repositories/loads_repository.dart';
 import '../entities/home_device.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for home devices data access
-abstract class IHomeRepository {
+abstract class IHomeRepository extends Repository<HomeDevices> {
   /// Get current home devices state
   Future<HomeDevices> getHomeDevices();
 
   /// Update home devices state
   Future<void> updateHomeDevices(HomeDevices devices);
-
-  /// Stream home devices state changes
-  Stream<HomeDevices> watchHomeDevices();
 
   /// Update individual device
   Future<void> updateDevice(HomeDevice device);
@@ -62,7 +60,7 @@ abstract class IHomeRepository {
 }
 
 /// Implementation of HomeRepository using in-memory storage
-class HomeRepository extends ChangeNotifier implements IHomeRepository {
+class HomeRepository extends IHomeRepository {
   HomeDevices _homeDevices = _createSampleHomeDevices();
   final List<HomeDevices> _history = [];
 
@@ -109,14 +107,7 @@ class HomeRepository extends ChangeNotifier implements IHomeRepository {
   Future<void> updateHomeDevices(HomeDevices devices) async {
     _homeDevices = devices.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_homeDevices);
-    notifyListeners();
-  }
-
-  @override
-  Stream<HomeDevices> watchHomeDevices() {
-    return Stream.fromIterable([
-      _homeDevices,
-    ]).asyncMap((_) async => _homeDevices);
+    notify(_homeDevices);
   }
 
   @override
@@ -282,14 +273,14 @@ class HomeRepository extends ChangeNotifier implements IHomeRepository {
   Future<void> resetDevices() async {
     _homeDevices = HomeDevices();
     _addToHistory(_homeDevices);
-    notifyListeners();
+    notify(_homeDevices);
   }
 
   @override
   Future<void> initializeSampleData() async {
     _homeDevices = _createSampleHomeDevices();
     _addToHistory(_homeDevices);
-    notifyListeners();
+    notify(_homeDevices);
   }
 
   // Convenience getters for backward compatibility

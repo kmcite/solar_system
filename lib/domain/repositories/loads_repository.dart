@@ -1,16 +1,13 @@
-import 'package:flutter/foundation.dart';
 import '../entities/loads.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for loads data access
-abstract class ILoadsRepository {
+abstract class ILoadsRepository extends Repository<Loads> {
   /// Get current loads state
   Future<Loads> getLoads();
 
   /// Update loads state
   Future<void> updateLoads(Loads loads);
-
-  /// Stream loads state changes
-  Stream<Loads> watchLoads();
 
   /// Update individual load
   Future<void> updateLoad(Load load);
@@ -36,7 +33,7 @@ abstract class ILoadsRepository {
 }
 
 /// Implementation of LoadsRepository using in-memory storage
-class LoadsRepository extends ChangeNotifier implements ILoadsRepository {
+class LoadsRepository extends ILoadsRepository {
   Loads _loads = _createSampleLoads();
   final List<Loads> _history = [];
 
@@ -49,12 +46,7 @@ class LoadsRepository extends ChangeNotifier implements ILoadsRepository {
   Future<void> updateLoads(Loads loads) async {
     _loads = loads.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_loads);
-    notifyListeners();
-  }
-
-  @override
-  Stream<Loads> watchLoads() {
-    return Stream.fromIterable([_loads]).asyncMap((_) async => _loads);
+    notify(_loads);
   }
 
   @override
@@ -125,7 +117,7 @@ class LoadsRepository extends ChangeNotifier implements ILoadsRepository {
   Future<void> resetLoads() async {
     _loads = Loads();
     _addToHistory(_loads);
-    notifyListeners();
+    notify(_loads);
   }
 
   // Convenience getters for backward compatibility

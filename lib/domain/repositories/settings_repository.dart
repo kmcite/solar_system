@@ -1,20 +1,35 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import '../entities/settings.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for settings data access
-abstract class ISettingsRepository {
+abstract class ISettingsRepository extends Repository<AppSettings> {
   /// Get current app settings
   Future<AppSettings> getSettings();
 
   /// Update app settings
   Future<void> updateSettings(AppSettings settings);
 
-  /// Stream settings changes
-  Stream<AppSettings> watchSettings();
+  /// Update dark mode setting
+  Future<void> updateDarkMode(bool value);
 
-  /// Update specific setting
-  Future<void> updateSetting<T>(String key, T value);
+  /// Update notifications enabled setting
+  Future<void> updateNotificationsEnabled(bool value);
+
+  /// Update language setting
+  Future<void> updateLanguage(String value);
+
+  /// Update temperature unit setting
+  Future<void> updateTemperatureUnit(double value);
+
+  /// Update auto power management setting
+  Future<void> updateAutoPowerManagement(bool value);
+
+  /// Update battery low threshold setting
+  Future<void> updateBatteryLowThreshold(double value);
+
+  /// Update battery high threshold setting
+  Future<void> updateBatteryHighThreshold(double value);
 
   /// Reset settings to defaults
   Future<void> resetSettings();
@@ -27,7 +42,7 @@ abstract class ISettingsRepository {
 }
 
 /// Implementation of SettingsRepository using in-memory storage
-class SettingsRepository extends ChangeNotifier implements ISettingsRepository {
+class SettingsRepository extends ISettingsRepository {
   AppSettings _settings = AppSettings(id: 'app_settings');
   final List<AppSettings> _history = [];
 
@@ -40,52 +55,48 @@ class SettingsRepository extends ChangeNotifier implements ISettingsRepository {
   Future<void> updateSettings(AppSettings settings) async {
     _settings = settings.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_settings);
-    notifyListeners();
+    notify(_settings);
   }
 
   @override
-  Stream<AppSettings> watchSettings() {
-    return Stream.fromIterable([_settings]).asyncMap((_) async => _settings);
+  Future<void> updateDarkMode(bool value) async {
+    final updatedSettings = _settings.copyWith(darkMode: value);
+    await updateSettings(updatedSettings);
   }
 
   @override
-  Future<void> updateSetting<T>(String key, T value) async {
-    AppSettings updatedSettings;
+  Future<void> updateNotificationsEnabled(bool value) async {
+    final updatedSettings = _settings.copyWith(notificationsEnabled: value);
+    await updateSettings(updatedSettings);
+  }
 
-    switch (key) {
-      case 'darkMode':
-        updatedSettings = _settings.copyWith(darkMode: value as bool);
-        break;
-      case 'notificationsEnabled':
-        updatedSettings = _settings.copyWith(
-          notificationsEnabled: value as bool,
-        );
-        break;
-      case 'language':
-        updatedSettings = _settings.copyWith(language: value as String);
-        break;
-      case 'temperatureUnit':
-        updatedSettings = _settings.copyWith(temperatureUnit: value as double);
-        break;
-      case 'autoPowerManagement':
-        updatedSettings = _settings.copyWith(
-          autoPowerManagement: value as bool,
-        );
-        break;
-      case 'batteryLowThreshold':
-        updatedSettings = _settings.copyWith(
-          batteryLowThreshold: value as double,
-        );
-        break;
-      case 'batteryHighThreshold':
-        updatedSettings = _settings.copyWith(
-          batteryHighThreshold: value as double,
-        );
-        break;
-      default:
-        throw ArgumentError('Unknown setting key: $key');
-    }
+  @override
+  Future<void> updateLanguage(String value) async {
+    final updatedSettings = _settings.copyWith(language: value);
+    await updateSettings(updatedSettings);
+  }
 
+  @override
+  Future<void> updateTemperatureUnit(double value) async {
+    final updatedSettings = _settings.copyWith(temperatureUnit: value);
+    await updateSettings(updatedSettings);
+  }
+
+  @override
+  Future<void> updateAutoPowerManagement(bool value) async {
+    final updatedSettings = _settings.copyWith(autoPowerManagement: value);
+    await updateSettings(updatedSettings);
+  }
+
+  @override
+  Future<void> updateBatteryLowThreshold(double value) async {
+    final updatedSettings = _settings.copyWith(batteryLowThreshold: value);
+    await updateSettings(updatedSettings);
+  }
+
+  @override
+  Future<void> updateBatteryHighThreshold(double value) async {
+    final updatedSettings = _settings.copyWith(batteryHighThreshold: value);
     await updateSettings(updatedSettings);
   }
 
@@ -93,7 +104,7 @@ class SettingsRepository extends ChangeNotifier implements ISettingsRepository {
   Future<void> resetSettings() async {
     _settings = AppSettings(id: 'app_settings');
     _addToHistory(_settings);
-    notifyListeners();
+    notify(_settings);
   }
 
   @override
@@ -129,7 +140,7 @@ class SettingsRepository extends ChangeNotifier implements ISettingsRepository {
   bool get dark => _settings.darkMode;
 
   Future<void> toggleDark() async {
-    await updateSetting('darkMode', !_settings.darkMode);
+    await updateDarkMode(!_settings.darkMode);
   }
 
   void _addToHistory(AppSettings settings) {

@@ -13,7 +13,7 @@ class InverterVoltageToggleProvider extends ChangeNotifier {
   Inverter _inverter = Inverter(id: 'main_inverter');
 
   InverterVoltageToggleProvider() {
-    _subscription = _inverterRepository.watchInverter().listen((inverter) {
+    _subscription = _inverterRepository.watch().listen((inverter) {
       _inverter = inverter;
       notifyListeners();
     });

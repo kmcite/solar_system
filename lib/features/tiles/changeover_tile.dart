@@ -13,7 +13,7 @@ class ChangeoverTileProvider extends ChangeNotifier {
   StreamSubscription<Changeover>? _subscription;
 
   ChangeoverTileProvider() {
-    _subscription = _changeoverRepository.watchChangeover().listen(
+    _subscription = _changeoverRepository.watch().listen(
       (changeover) {
         this.changeover = changeover;
         notifyListeners();
@@ -21,7 +21,7 @@ class ChangeoverTileProvider extends ChangeNotifier {
     );
   }
 
-  late Changeover changeover;
+  Changeover changeover = Changeover(id: 'id');
 
   @override
   void dispose() {

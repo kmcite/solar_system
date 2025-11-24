@@ -1,16 +1,13 @@
-import 'package:flutter/foundation.dart';
 import '../entities/panels.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for panels data access
-abstract class IPanelsRepository {
+abstract class IPanelsRepository extends Repository<Panels> {
   /// Get current panels state
   Future<Panels> getPanels();
 
   /// Update panels state
   Future<void> updatePanels(Panels panels);
-
-  /// Stream panels state changes
-  Stream<Panels> watchPanels();
 
   /// Update individual panel
   Future<void> updatePanel(Panel panel);
@@ -33,7 +30,7 @@ abstract class IPanelsRepository {
 }
 
 /// Implementation of PanelsRepository using in-memory storage
-class PanelsRepository extends ChangeNotifier implements IPanelsRepository {
+class PanelsRepository extends IPanelsRepository {
   Panels _panels = _createSamplePanels();
   final List<Panels> _history = [];
 
@@ -46,12 +43,7 @@ class PanelsRepository extends ChangeNotifier implements IPanelsRepository {
   Future<void> updatePanels(Panels panels) async {
     _panels = panels.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_panels);
-    notifyListeners();
-  }
-
-  @override
-  Stream<Panels> watchPanels() {
-    return Stream.fromIterable([_panels]).asyncMap((_) async => _panels);
+    notify(_panels);
   }
 
   @override
@@ -112,7 +104,7 @@ class PanelsRepository extends ChangeNotifier implements IPanelsRepository {
   Future<void> resetPanels() async {
     _panels = Panels();
     _addToHistory(_panels);
-    notifyListeners();
+    notify(_panels);
   }
 
   // Convenience getters for backward compatibility

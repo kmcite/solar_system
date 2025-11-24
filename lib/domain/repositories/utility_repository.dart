@@ -1,17 +1,14 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import '../entities/utility.dart';
+import '../../../utils/repository.dart';
 
 /// Repository interface for utility data access
-abstract class IUtilityRepository {
+abstract class IUtilityRepository extends Repository<Utility> {
   /// Get current utility state
   Future<Utility> getUtility();
 
   /// Update utility state
   Future<void> updateUtility(Utility utility);
-
-  /// Stream utility state changes
-  Stream<Utility> watchUtility();
 
   /// Set utility online status
   Future<void> setOnlineStatus(bool isOnline);
@@ -34,7 +31,7 @@ abstract class IUtilityRepository {
 }
 
 /// Implementation of UtilityRepository using in-memory storage
-class UtilityRepository extends ChangeNotifier implements IUtilityRepository {
+class UtilityRepository extends IUtilityRepository {
   Utility _utility = Utility(id: 'main_utility');
   final List<Utility> _history = [];
   Timer? _timer;
@@ -48,12 +45,7 @@ class UtilityRepository extends ChangeNotifier implements IUtilityRepository {
   Future<void> updateUtility(Utility utility) async {
     _utility = utility.copyWith(lastUpdated: DateTime.now());
     _addToHistory(_utility);
-    notifyListeners();
-  }
-
-  @override
-  Stream<Utility> watchUtility() {
-    return Stream.fromIterable([_utility]).asyncMap((_) async => _utility);
+    notify(_utility);
   }
 
   @override
@@ -112,7 +104,7 @@ class UtilityRepository extends ChangeNotifier implements IUtilityRepository {
     _timer = null;
     _utility = Utility(id: 'main_utility');
     _addToHistory(_utility);
-    notifyListeners();
+    notify(_utility);
   }
 
   // Convenience getters for backward compatibility
@@ -134,12 +126,6 @@ class UtilityRepository extends ChangeNotifier implements IUtilityRepository {
 
   void setStatus(bool newStatus) {
     setOnlineStatus(newStatus);
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 
   void _addToHistory(Utility utility) {

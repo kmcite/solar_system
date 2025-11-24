@@ -13,7 +13,7 @@ class DarkModeToggleProvider extends ChangeNotifier {
   AppSettings _settings = AppSettings(id: 'app_settings');
 
   DarkModeToggleProvider() {
-    _subscription = _settingsRepository.watchSettings().listen((settings) {
+    _subscription = _settingsRepository.watch().listen((settings) {
       _settings = settings;
       notifyListeners();
     });
@@ -22,7 +22,7 @@ class DarkModeToggleProvider extends ChangeNotifier {
   bool get isDarkMode => _settings.darkMode;
 
   void toggleDark() {
-    _settingsRepository.updateSetting('darkMode', !_settings.darkMode);
+    _settingsRepository.updateDarkMode(!_settings.darkMode);
   }
 
   @override
