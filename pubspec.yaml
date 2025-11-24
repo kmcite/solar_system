@@ -3,16 +3,17 @@ description: A solar system simulator.
 version: 0.0.1
 publish_to: none
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.10.1
 dependencies:
-  provider: ^6.1.2
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
   uuid: ^4.4.0
   flutter_native_splash: ^2.4.1
-  package_info_plus: ^9.0.0
   font_awesome_flutter: ^10.7.0
   faker: ^2.2.0
+  go_router: ^17.0.0
+  manager:
+    path: D://projects//manager
 flutter:
   uses-material-design: true

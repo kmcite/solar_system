@@ -1,6 +1,6 @@
 import '../entities/battery.dart';
 import '../entities/inverter.dart';
-import '../entities/flow.dart';
+import '../entities/solar_flow.dart';
 import '../entities/panels.dart';
 import '../entities/loads.dart';
 import '../entities/utility.dart';
@@ -32,7 +32,7 @@ class PowerManagementUseCase {
 
   /// Determine optimal changeover state based on system conditions
   ChangeoverState determineOptimalChangeoverState({
-    required Flow flow,
+    required SolarFlow flow,
     required Inverter inverter,
     required Battery battery,
     required Utility utility,
@@ -60,7 +60,7 @@ class PowerManagementUseCase {
 
   /// Check if power management should be active
   bool shouldManagePower({
-    required Flow flow,
+    required SolarFlow flow,
     required Inverter inverter,
     required AppSettings settings,
   }) {

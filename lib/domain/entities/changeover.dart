@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
+
 enum ChangeoverState {
   utility,
   solar,
-  backup;
+  backup
+  ;
 
   String get displayName {
     switch (this) {
@@ -11,6 +14,39 @@ enum ChangeoverState {
         return 'Solar';
       case ChangeoverState.backup:
         return 'Backup';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case ChangeoverState.utility:
+        return Icons.power;
+      case ChangeoverState.solar:
+        return Icons.wb_sunny;
+      case ChangeoverState.backup:
+        return Icons.battery_full;
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case ChangeoverState.utility:
+        return Colors.blue;
+      case ChangeoverState.solar:
+        return Colors.orange;
+      case ChangeoverState.backup:
+        return Colors.green;
+    }
+  }
+
+  double get progress {
+    switch (this) {
+      case ChangeoverState.utility:
+        return 0.33;
+      case ChangeoverState.solar:
+        return 0.67;
+      case ChangeoverState.backup:
+        return 1.0;
     }
   }
 }

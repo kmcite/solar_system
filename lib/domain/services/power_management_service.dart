@@ -3,41 +3,41 @@ import 'package:flutter/foundation.dart';
 import '../usecases/power_management_usecase.dart';
 import '../entities/loads.dart';
 import '../entities/home_device.dart';
-import '../../data/repositories/battery_repository_impl.dart';
-import '../../data/repositories/flow_repository_impl.dart';
-import '../../data/repositories/inverter_repository_impl.dart';
-import '../../data/repositories/home_repository_impl.dart';
-import '../../data/repositories/panels_repository_impl.dart';
-import '../../data/repositories/changeover_repository_impl.dart';
-import '../../data/repositories/utility_repository_impl.dart';
-import '../../data/repositories/settings_repository_impl.dart';
+import '../repositories/battery_repository.dart';
+import '../repositories/flow_repository.dart';
+import '../repositories/inverter_repository.dart';
+import '../repositories/home_repository.dart';
+import '../repositories/panels_repository.dart';
+import '../repositories/changeover_repository.dart';
+import '../repositories/utility_repository.dart';
+import '../repositories/settings_repository.dart';
 
 /// Service that manages power flow between solar panels, loads, and battery
 /// Handles excess power by charging the battery when output > load
 class PowerManagementService extends ChangeNotifier {
-  final BatteryRepositoryImpl _batteryRepo;
-  final FlowRepositoryImpl _flowRepo;
-  final InverterRepositoryImpl _inverterRepo;
-  final HomeRepositoryImpl _homeRepo;
-  final PanelsRepositoryImpl _panelsRepo;
-  final ChangeoverRepositoryImpl _changeoverRepo;
+  final IBatteryRepository _batteryRepo;
+  final IFlowRepository _flowRepo;
+  final IInverterRepository _inverterRepo;
+  final IHomeRepository _homeRepo;
+  final IPanelsRepository _panelsRepo;
+  final IChangeoverRepository _changeoverRepo;
   final PowerManagementUseCase _powerManagementUseCase;
-  final SettingsRepositoryImpl _settingsRepo;
-  final UtilityRepositoryImpl _utilityRepo;
+  final ISettingsRepository _settingsRepo;
+  final IUtilityRepository _utilityRepo;
 
   Timer? _powerManagementTimer;
   bool _isManaging = false;
 
   PowerManagementService({
-    required BatteryRepositoryImpl batteryRepo,
-    required FlowRepositoryImpl flowRepo,
-    required InverterRepositoryImpl inverterRepo,
-    required HomeRepositoryImpl homeRepo,
-    required PanelsRepositoryImpl panelsRepo,
-    required ChangeoverRepositoryImpl changeoverRepo,
+    required IBatteryRepository batteryRepo,
+    required IFlowRepository flowRepo,
+    required IInverterRepository inverterRepo,
+    required IHomeRepository homeRepo,
+    required IPanelsRepository panelsRepo,
+    required IChangeoverRepository changeoverRepo,
     required PowerManagementUseCase powerManagementUseCase,
-    required SettingsRepositoryImpl settingsRepo,
-    required UtilityRepositoryImpl utilityRepo,
+    required ISettingsRepository settingsRepo,
+    required IUtilityRepository utilityRepo,
   }) : _batteryRepo = batteryRepo,
        _flowRepo = flowRepo,
        _inverterRepo = inverterRepo,
