@@ -1,98 +1,172 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:solar_system/domain/battery_repository.dart';
-import 'package:solar_system/domain/inverter_repository.dart';
-import 'package:solar_system/domain/loads_repository.dart';
-import 'package:solar_system/domain/panels_repository.dart';
-import 'package:solar_system/domain/settings_repository.dart';
-import 'package:solar_system/domain/utility_repository.dart';
-import 'package:solar_system/features/dashboard/dashboard.dart';
-import 'package:solar_system/main.dart';
-export 'package:spark/spark.dart';
-export 'package:solar_system/utils/navigator.dart';
+import 'package:provider/provider.dart';
 
-import 'domain/flow_repository.dart';
-import 'objectbox.g.dart';
+// Data Layer
+import 'package:solar_system/data/repositories/battery_repository_impl.dart';
+import 'package:solar_system/data/repositories/flow_repository_impl.dart';
+import 'package:solar_system/data/repositories/inverter_repository_impl.dart';
+import 'package:solar_system/data/repositories/loads_repository_impl.dart';
+import 'package:solar_system/data/repositories/panels_repository_impl.dart';
+import 'package:solar_system/data/repositories/utility_repository_impl.dart';
+import 'package:solar_system/data/repositories/changeover_repository_impl.dart';
+import 'package:solar_system/data/repositories/settings_repository_impl.dart';
+import 'package:solar_system/data/repositories/home_repository_impl.dart';
 
-export 'dart:convert';
+// Domain Layer
+import 'package:solar_system/domain/usecases/power_management_usecase.dart';
+import 'package:solar_system/domain/usecases/system_monitoring_usecase.dart';
+import 'package:solar_system/domain/services/power_management_service.dart';
 
-export 'package:flutter/foundation.dart';
-export 'package:flutter/material.dart' hide Builder, State;
-export 'package:forui/forui.dart';
-export 'package:uuid/uuid.dart';
+// Presentation Layer
+import 'package:solar_system/presentation/screens/dashboard_screen.dart';
+import 'package:solar_system/presentation/screens/home_screen.dart';
+import 'package:solar_system/presentation/providers/power_initializer_provider.dart';
+import 'package:solar_system/presentation/providers/home_provider.dart';
 
 void main() async {
-  // Bloc.observer = LogBlocs();
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(SolarSystem());
+
+  runApp(SolarSystemApp());
 }
 
-class SolarSystemApp extends Application {
+class SolarSystemApp extends StatelessWidget {
   @override
-  Widget buildApp(BuildContext context) => SolarSystem();
-
-  @override
-  Future<void> init() async {
-    final appInfo = await PackageInfo.fromPlatform();
-    final path = await getApplicationDocumentsDirectory();
-    final store = await openStore(directory: join(path.path, appInfo.appName));
-    await Hive.initFlutter();
-    final hive = await Hive.openBox(appInfo.appName);
-    putService(store);
-    putService(hive);
-
-    putRepository(SettingsRepository());
-    putRepository(BatteryRepository());
-    putRepository(FlowRepository());
-    putRepository(InverterRepository());
-    putRepository(LoadsRepository());
-    putRepository(PanelsRepository());
-    putRepository(UtilityRepository());
-  }
-}
-
-class SolarSystemBloc extends Cubit<bool> {
-  late SettingsRepository settingsRepository = find();
-  SolarSystemBloc() : super(false) {}
-
-  @override
-  Future<void> initState() {
+  Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
-    settingsRepository.stream.listen(
-      (settings) => emit(settings.dark),
+    return MultiProvider(
+      providers: [
+        // Data Layer - Repository Implementations
+        ChangeNotifierProvider<BatteryRepositoryImpl>(
+          create: (_) => BatteryRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<FlowRepositoryImpl>(
+          create: (_) => FlowRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<InverterRepositoryImpl>(
+          create: (_) => InverterRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<LoadsRepositoryImpl>(
+          create: (_) => LoadsRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<PanelsRepositoryImpl>(
+          create: (_) => PanelsRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<UtilityRepositoryImpl>(
+          create: (_) => UtilityRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<ChangeoverRepositoryImpl>(
+          create: (_) => ChangeoverRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<SettingsRepositoryImpl>(
+          create: (_) => SettingsRepositoryImpl(),
+        ),
+        ChangeNotifierProvider<HomeRepositoryImpl>(
+          create: (_) => HomeRepositoryImpl(),
+        ),
+
+        // Domain Layer - Use Cases
+        Provider<PowerManagementUseCase>(
+          create: (_) => PowerManagementUseCase(),
+        ),
+        Provider<SystemMonitoringUseCase>(
+          create: (_) => SystemMonitoringUseCase(),
+        ),
+
+        // Domain Layer - Services
+        ChangeNotifierProvider<PowerManagementService>(
+          create: (context) {
+            final batteryRepo = context.read<BatteryRepositoryImpl>();
+            final flowRepo = context.read<FlowRepositoryImpl>();
+            final inverterRepo = context.read<InverterRepositoryImpl>();
+            final homeRepo = context.read<HomeRepositoryImpl>();
+            final panelsRepo = context.read<PanelsRepositoryImpl>();
+            final changeoverRepo = context.read<ChangeoverRepositoryImpl>();
+            final utilityRepo = context.read<UtilityRepositoryImpl>();
+            final settingsRepo = context.read<SettingsRepositoryImpl>();
+            final powerManagementUseCase = context
+                .read<PowerManagementUseCase>();
+
+            return PowerManagementService(
+              batteryRepo: batteryRepo,
+              flowRepo: flowRepo,
+              inverterRepo: inverterRepo,
+              homeRepo: homeRepo,
+              panelsRepo: panelsRepo,
+              changeoverRepo: changeoverRepo,
+              utilityRepo: utilityRepo,
+              settingsRepo: settingsRepo,
+              powerManagementUseCase: powerManagementUseCase,
+            );
+          },
+        ),
+
+        // Presentation Layer - Providers
+        ChangeNotifierProvider<PowerInitializerProvider>(
+          create: (context) {
+            final powerManagementService = context
+                .read<PowerManagementService>();
+            final flowRepo = context.read<FlowRepositoryImpl>();
+            final inverterRepo = context.read<InverterRepositoryImpl>();
+
+            return PowerInitializerProvider(
+              powerManagementService: powerManagementService,
+              flowRepo: flowRepo,
+              inverterRepo: inverterRepo,
+            );
+          },
+        ),
+        ChangeNotifierProvider<HomeProvider>(
+          create: (context) {
+            final homeRepo = context.read<HomeRepositoryImpl>();
+            final loadsRepo = context.read<LoadsRepositoryImpl>();
+            final homeProvider = HomeProvider(homeRepository: homeRepo);
+
+            // Migrate existing loads to home devices
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              homeRepo.migrateFromLoads(loadsRepo);
+            });
+
+            return homeProvider;
+          },
+        ),
+      ],
+      child: Builder(
+        builder: (context) {
+          final settingsRepo = context.watch<SettingsRepositoryImpl>();
+          return MaterialApp(
+            navigatorKey: AppNavigator.key,
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: settingsRepo.dark ? ThemeMode.dark : ThemeMode.light,
+            home: const DashboardScreen(),
+            routes: {
+              '/home': (context) => const HomeScreen(),
+            },
+          );
+        },
+      ),
     );
-    emit(settingsRepository.state.dark);
-    return super.initState();
   }
 }
 
-class SolarSystem extends Feature<SolarSystemBloc> {
-  const SolarSystem({super.key});
-  @override
-  SolarSystemBloc create() => SolarSystemBloc();
-  @override
-  Widget build(BuildContext context, controller) {
-    return MaterialApp(
-      navigatorKey: navigator.key,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.light().copyWith(
-        progressIndicatorTheme: ProgressIndicatorThemeData(year2023: false),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        progressIndicatorTheme: ProgressIndicatorThemeData(year2023: false),
-      ),
-      themeMode: controller() ? ThemeMode.dark : ThemeMode.light,
-      home: DashboardView(),
-      builder: (context, child) {
-        return FTheme(
-          data: controller() ? FThemes.blue.dark : FThemes.green.light,
-          child: child!,
-        );
-      },
-    );
+class AppNavigator {
+  static final GlobalKey<NavigatorState> key = GlobalKey<NavigatorState>();
+
+  static void back() {
+    key.currentState?.pop();
+  }
+
+  static Future<T?> push<T>(Widget page) {
+    return key.currentState?.push(
+          MaterialPageRoute(builder: (context) => page),
+        ) ??
+        Future.value(null);
+  }
+
+  static Future<T?> pushNamed<T>(String routeName) {
+    return key.currentState?.pushNamed(routeName) ?? Future.value(null);
   }
 }
