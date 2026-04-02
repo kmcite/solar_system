@@ -75,14 +75,12 @@ class LoadModel {
     double? load,
     bool? status,
     String? type,
-  }) {
-    return LoadModel(
-      id: id ?? this.id,
-      load: load ?? this.load,
-      status: status ?? this.status,
-      type: type ?? this.type,
-    );
-  }
+  }) => LoadModel(
+    id: id ?? this.id,
+    load: load ?? this.load,
+    status: status ?? this.status,
+    type: type ?? this.type,
+  );
 }
 
 class PanelModel {
@@ -106,16 +104,13 @@ class PanelModel {
     double? currentMaxPowerOutput,
     String? name,
     bool? status,
-  }) {
-    return PanelModel(
-      id: id ?? this.id,
-      ratedMaxPowerOutput: ratedMaxPowerOutput ?? this.ratedMaxPowerOutput,
-      currentMaxPowerOutput:
-          currentMaxPowerOutput ?? this.currentMaxPowerOutput,
-      name: name ?? this.name,
-      status: status ?? this.status,
-    );
-  }
+  }) => PanelModel(
+    id: id ?? this.id,
+    ratedMaxPowerOutput: ratedMaxPowerOutput ?? this.ratedMaxPowerOutput,
+    currentMaxPowerOutput: currentMaxPowerOutput ?? this.currentMaxPowerOutput,
+    name: name ?? this.name,
+    status: status ?? this.status,
+  );
 
   double currentPowerOutput(double radiation) =>
       currentMaxPowerOutput * radiation;

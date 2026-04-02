@@ -1,30 +1,65 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Backgrounds
-  static const Color backgroundDark = Color(0xFF060D1E);
-  static const Color backgroundDarkSecondary = Color(0xFF0B1326);
-  static const Color cardDark = Color(0xFF111A2E);
-  static const Color cardDarkBorder = Color(0xFF1A2540);
+  // iOS System Colors
+  static const Color iosBlue = Color(0xFF007AFF);
+  static const Color iosGreen = Color(0xFF34C759);
+  static const Color iosIndigo = Color(0xFF5856D6);
+  static const Color iosOrange = Color(0xFFFF9500);
+  static const Color iosPink = Color(0xFFFF2D55);
+  static const Color iosPurple = Color(0xFFAF52DE);
+  static const Color iosRed = Color(0xFFFF3B30);
+  static const Color iosTeal = Color(0xFF5AC8FA);
+  static const Color iosYellow = Color(0xFFFFCC00);
+  static const Color iosGray = Color(0xFF8E8E93);
+  static const Color iosGray2 = Color(0xFFAEAEB2);
+  static const Color iosGray3 = Color(0xFFC7C7CC);
+  static const Color iosGray4 = Color(0xFFD1D1D6);
+  static const Color iosGray5 = Color(0xFFE5E5EA);
+  static const Color iosGray6 = Color(0xFFF2F2F7);
 
-  // Primary - Solar Gold
-  static const Color solarGold = Color(0xFFFFB800);
-  static const Color solarAmber = Color(0xFFFFC640);
-  static const Color solarGoldDark = Color(0xFFE3AA00);
+  // iOS Background Colors
+  static const Color iosLightBackground = Color(0xFFF2F2F7);
+  static const Color iosDarkBackground = Color(0xFF000000);
+  static const Color iosLightText = Color(0xFF000000);
+  static const Color iosDarkText = Color(0xFFFFFFFF);
+  static const Color iosSecondaryLightText = Color(0xFF8E8E93);
+  static const Color iosSecondaryDarkText = Color(0xFF8E8E93);
 
-  // Secondary - Emerald Green
-  static const Color emeraldGreen = Color(0xFF00E68A);
-  static const Color emeraldPrimary = Color(0xFF10B981);
-  static const Color emeraldDark = Color(0xFF0A8F63);
+  // Legacy terminal colors (kept for reference)
+  static const Color terminalBlack = Color(0xFF000000);
+  static const Color terminalDarkGray = Color(0xFF1E1E1E);
+  static const Color terminalMediumGray = Color(0xFF2D2D2D);
+  static const Color terminalLightGray = Color(0xFF3C3C3C);
+  static const Color terminalBackground = Color(0xFF0C0C0C);
+  static const Color terminalGreen = Color(0xFF00FF00);
+  static const Color terminalBrightGreen = Color(0xFF00FF41);
+  static const Color terminalAmber = Color(0xFFFFB000);
+  static const Color terminalYellow = Color(0xFFFFFF00);
+  static const Color terminalRed = Color(0xFFFF0000);
+  static const Color terminalBrightRed = Color(0xFFFF4444);
+  static const Color terminalCyan = Color(0xFF00FFFF);
+  static const Color terminalBlue = Color(0xFF0080FF);
+  static const Color terminalMagenta = Color(0xFFFF00FF);
+  static const Color terminalWhite = Color(0xFFFFFFFF);
+  static const Color terminalGray = Color(0xFF808080);
 
-  // Tertiary - Electric Cyan
-  static const Color electricCyan = Color(0xFF00B4D8);
-  static const Color cyanLight = Color(0xFF89CEFF);
-  static const Color cyanAccent = Color(0xFF23ACF1);
-
-  // Error/Warning
-  static const Color coralRed = Color(0xFFFF4757);
-  static const Color warningOrange = Color(0xFFFF8C42);
+  // iOS semantic colors for the app
+  static const Color backgroundDark = iosDarkBackground;
+  static const Color backgroundDarkSecondary = Color(0xFF1C1C1E);
+  static const Color cardDark = Color(0xFF2C2C2E);
+  static const Color cardDarkBorder = Color(0xFF3A3A3C);
+  static const Color solarGold = iosOrange;
+  static const Color solarAmber = iosYellow;
+  static const Color solarGoldDark = iosOrange;
+  static const Color emeraldGreen = iosGreen;
+  static const Color emeraldPrimary = iosGreen;
+  static const Color emeraldDark = iosGreen;
+  static const Color electricCyan = iosTeal;
+  static const Color cyanLight = iosTeal;
+  static const Color cyanAccent = iosTeal;
+  static const Color coralRed = iosRed;
+  static const Color warningOrange = iosOrange;
 
   // Text opacity helpers
   static Color textPrimary(BuildContext context) =>
@@ -36,41 +71,49 @@ class AppColors {
 }
 
 class AppGradients {
-  static const LinearGradient solarGold = LinearGradient(
-    colors: [Color(0xFFFFB800), Color(0xFFFFC640)],
+  // Terminal-style gradients (subtle, monochrome with accent colors)
+  static const LinearGradient terminalGreen = LinearGradient(
+    colors: [Color(0xFF00FF00), Color(0xFF00CC00)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient emerald = LinearGradient(
-    colors: [Color(0xFF00E68A), Color(0xFF10B981)],
+  static const LinearGradient terminalAmber = LinearGradient(
+    colors: [Color(0xFFFFB000), Color(0xFFFF8800)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient cyan = LinearGradient(
-    colors: [Color(0xFF00B4D8), Color(0xFF89CEFF)],
+  static const LinearGradient terminalRed = LinearGradient(
+    colors: [Color(0xFFFF0000), Color(0xFFCC0000)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient cardDark = LinearGradient(
-    colors: [Color(0xFF111A2E), Color(0xFF0B1326)],
+  static const LinearGradient terminalCyan = LinearGradient(
+    colors: [Color(0xFF00FFFF), Color(0xFF00CCCC)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient coral = LinearGradient(
-    colors: [Color(0xFFFF4757), Color(0xFFFF6B81)],
+  static const LinearGradient terminalDark = LinearGradient(
+    colors: [Color(0xFF1E1E1E), Color(0xFF0C0C0C)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Hero card gradients
+  // Legacy gradients for compatibility
+  static const LinearGradient solarGold = terminalAmber;
+  static const LinearGradient emerald = terminalGreen;
+  static const LinearGradient cyan = terminalCyan;
+  static const LinearGradient cardDark = terminalDark;
+  static const LinearGradient coral = terminalRed;
+
+  // Terminal-style hero gradients
   static LinearGradient heroSolar = LinearGradient(
     colors: [
-      const Color(0xFFFFB800).withValues(alpha: 0.15),
-      const Color(0xFFFFC640).withValues(alpha: 0.05),
+      AppColors.terminalAmber.withValues(alpha: 0.15),
+      AppColors.terminalYellow.withValues(alpha: 0.05),
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -78,8 +121,8 @@ class AppGradients {
 
   static LinearGradient heroEmerald = LinearGradient(
     colors: [
-      const Color(0xFF00E68A).withValues(alpha: 0.15),
-      const Color(0xFF10B981).withValues(alpha: 0.05),
+      AppColors.terminalGreen.withValues(alpha: 0.15),
+      AppColors.terminalBrightGreen.withValues(alpha: 0.05),
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -87,8 +130,8 @@ class AppGradients {
 
   static LinearGradient heroCyan = LinearGradient(
     colors: [
-      const Color(0xFF00B4D8).withValues(alpha: 0.15),
-      const Color(0xFF89CEFF).withValues(alpha: 0.05),
+      AppColors.terminalCyan.withValues(alpha: 0.15),
+      AppColors.terminalCyan.withValues(alpha: 0.05),
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -96,33 +139,44 @@ class AppGradients {
 }
 
 class AppShadows {
+  // Terminal-style shadows (subtle, no glow effects)
+  static List<BoxShadow> terminal = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.5),
+      blurRadius: 2,
+      offset: const Offset(1, 1),
+    ),
+  ];
+
+  static List<BoxShadow> terminalInset = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.3),
+      blurRadius: 2,
+      offset: const Offset(-1, -1),
+    ),
+    BoxShadow(
+      color: AppColors.terminalWhite.withValues(alpha: 0.1),
+      blurRadius: 2,
+      offset: const Offset(1, 1),
+    ),
+  ];
+
+  // Legacy shadows for compatibility
   static List<BoxShadow> glow(
     Color color, {
     double blurRadius = 20,
     double spreadRadius = -2,
-  }) => [
-    BoxShadow(
-      color: color.withValues(alpha: 0.3),
-      blurRadius: blurRadius,
-      spreadRadius: spreadRadius,
-    ),
-  ];
+  }) {
+    return terminal;
+  }
 
-  static List<BoxShadow> glowSmall(Color color) => [
-    BoxShadow(
-      color: color.withValues(alpha: 0.2),
-      blurRadius: 12,
-      spreadRadius: -4,
-    ),
-  ];
+  static List<BoxShadow> glowSmall(Color color) {
+    return terminal;
+  }
 
-  static List<BoxShadow> cardShadow = [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: 0.2),
-      blurRadius: 16,
-      offset: const Offset(0, 4),
-    ),
-  ];
+  static List<BoxShadow> cardShadow() {
+    return terminal;
+  }
 }
 
 class AppSpacing {

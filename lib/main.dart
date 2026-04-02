@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
@@ -9,11 +9,13 @@ import 'package:solar_system/business/radiation.dart';
 import 'package:solar_system/business/panels.dart';
 import 'package:solar_system/business/revenue.dart';
 import 'package:solar_system/screens/game_screen.dart';
+import 'package:solar_system/utils/signal_observer.dart';
 import 'package:solar_system/utils/ui_helpers.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  SignalsObserver.instance = SignalObserver();
 
   // Start timer-based services
   startRadiation();
@@ -45,106 +47,139 @@ void main() async {
   initializeApp();
   FlutterNativeSplash.remove();
 
-  runApp(const SolarSystem());
+  runApp(const SolarSystemApp());
 }
 
-class SolarSystem extends StatelessWidget {
-  const SolarSystem({super.key});
+class SolarSystemApp extends StatelessWidget {
+  const SolarSystemApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
       final error = appError.value;
       if (error != null) {
-        return MaterialApp(
-          home: Scaffold(body: Center(child: Text('Error: $error'))),
-        );
+        return _buildErrorApp(error);
       }
 
       if (appLoading.value) {
-        return MaterialApp(
-          home: Scaffold(
-            backgroundColor: AppColors.backgroundDark,
-            body: Center(
-              child: CircularProgressIndicator(
-                color: AppColors.emeraldPrimary,
-              ),
-            ),
-          ),
-        );
+        return _buildLoadingApp();
       }
 
-      final dark = darkMode.value;
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData.light(useMaterial3: true).copyWith(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.emeraldPrimary,
-            brightness: Brightness.light,
-            primary: AppColors.emeraldPrimary,
-            secondary: AppColors.solarGold,
-            tertiary: AppColors.electricCyan,
-            error: AppColors.coralRed,
-          ),
-          scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-          appBarTheme: AppBarTheme(
-            backgroundColor: Colors.white.withValues(alpha: 0.95),
-            elevation: 0,
-            scrolledUnderElevation: 1,
-          ),
-          navigationBarTheme: NavigationBarThemeData(
-            backgroundColor: Colors.white,
-            indicatorColor: AppColors.emeraldPrimary.withValues(alpha: 0.15),
-            elevation: 2,
-          ),
-        ),
-        darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.emeraldPrimary,
-            brightness: Brightness.dark,
-            surface: AppColors.backgroundDarkSecondary,
-            onSurface: Colors.white,
-            surfaceContainer: AppColors.cardDark,
-            surfaceContainerLow: AppColors.backgroundDarkSecondary,
-            surfaceContainerHighest: const Color(0xFF2D3449),
-            primary: AppColors.emeraldGreen,
-            primaryContainer: AppColors.emeraldPrimary,
-            secondary: AppColors.solarAmber,
-            secondaryContainer: AppColors.solarGoldDark,
-            tertiary: AppColors.cyanLight,
-            tertiaryContainer: AppColors.cyanAccent,
-            error: AppColors.coralRed,
-            outline: const Color(0xFF86948A),
-            outlineVariant: const Color(0xFF3C4A42),
-          ),
-          scaffoldBackgroundColor: AppColors.backgroundDark,
-          appBarTheme: AppBarTheme(
-            backgroundColor: AppColors.backgroundDark.withValues(alpha: 0.95),
-            elevation: 0,
-            scrolledUnderElevation: 0,
-          ),
-          navigationBarTheme: NavigationBarThemeData(
-            backgroundColor: AppColors.backgroundDarkSecondary.withValues(
-              alpha: 0.95,
-            ),
-            indicatorColor: AppColors.emeraldPrimary.withValues(alpha: 0.25),
-            elevation: 0,
-          ),
-        ),
-        themeMode: dark ? ThemeMode.dark : ThemeMode.light,
-        home: const MainApp(),
-      );
+      return _buildMainApp();
     });
+  }
+
+  CupertinoApp _buildErrorApp(String error) {
+    return CupertinoApp(
+      debugShowCheckedModeBanner: false,
+      home: CupertinoPageScaffold(
+        backgroundColor: CupertinoColors.systemRed.withValues(alpha: 0.1),
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  CupertinoIcons.exclamationmark_triangle,
+                  size: 48,
+                  color: CupertinoColors.systemRed,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Error',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: CupertinoColors.systemRed,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  error,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: CupertinoColors.label,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  CupertinoApp _buildLoadingApp() {
+    return CupertinoApp(
+      debugShowCheckedModeBanner: false,
+      home: CupertinoPageScaffold(
+        backgroundColor: AppColors.iosDarkBackground,
+        child: const SafeArea(
+          child: Center(
+            child: CupertinoActivityIndicator(radius: 20),
+          ),
+        ),
+      ),
+    );
+  }
+
+  CupertinoApp _buildMainApp() {
+    final dark = darkMode.value;
+    final brightness = dark ? Brightness.dark : Brightness.light;
+
+    return CupertinoApp(
+      debugShowCheckedModeBanner: false,
+      theme: CupertinoThemeData(
+        brightness: brightness,
+        primaryColor: AppColors.iosBlue,
+        primaryContrastingColor: dark
+            ? CupertinoColors.white
+            : CupertinoColors.black,
+        scaffoldBackgroundColor: dark
+            ? AppColors.iosDarkBackground
+            : AppColors.iosLightBackground,
+        barBackgroundColor: dark
+            ? AppColors.iosDarkBackground
+            : AppColors.iosLightBackground,
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 17,
+            color: dark ? AppColors.iosDarkText : AppColors.iosLightText,
+          ),
+          navLargeTitleTextStyle: const TextStyle(
+            fontFamily: '.SF Pro Display',
+            fontSize: 34,
+            fontWeight: FontWeight.bold,
+          ),
+          navTitleTextStyle: const TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+          actionTextStyle: TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 17,
+            color: AppColors.iosBlue,
+          ),
+          tabLabelTextStyle: const TextStyle(
+            fontFamily: '.SF Pro Text',
+            fontSize: 10,
+          ),
+        ),
+      ),
+      home: const MainScreen(),
+    );
   }
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MainScreen extends StatelessWidget {
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: GameScreen(),
+    return const CupertinoPageScaffold(
+      child: GameScreen(),
     );
   }
 }

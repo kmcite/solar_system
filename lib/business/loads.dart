@@ -28,16 +28,14 @@ class Load {
     String? type,
     String? name,
     double? revenuePerSecond,
-  }) {
-    return Load(
-      id: id ?? this.id,
-      load: load ?? this.load,
-      isActive: isActive ?? this.isActive,
-      type: type ?? this.type,
-      name: name ?? this.name,
-      revenuePerSecond: revenuePerSecond ?? this.revenuePerSecond,
-    );
-  }
+  }) => Load(
+    id: id ?? this.id,
+    load: load ?? this.load,
+    isActive: isActive ?? this.isActive,
+    type: type ?? this.type,
+    name: name ?? this.name,
+    revenuePerSecond: revenuePerSecond ?? this.revenuePerSecond,
+  );
 }
 
 // =============================================================================

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import 'package:solar_system/business/app.dart';
@@ -12,44 +12,59 @@ import 'package:solar_system/business/radiation.dart';
 import 'package:solar_system/business/revenue.dart';
 import 'package:solar_system/business/utility.dart';
 import 'package:solar_system/domain/models/models.dart';
+import 'package:solar_system/utils/ui_helpers.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Solar Tycoon'),
+    final theme = CupertinoTheme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('Solar Tycoon'),
+        backgroundColor: isDark
+            ? AppColors.iosDarkBackground
+            : AppColors.iosLightBackground,
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => _showSettingsDialog(context),
+          child: const Icon(CupertinoIcons.settings, size: 24),
+        ),
       ),
-      floatingActionButton: FloatingActionButton.small(
-        onPressed: () => _showSettingsDialog(context),
-        child: const Icon(Icons.settings, size: 20),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(8),
-        children: const [
-          _HudBar(),
-          Divider(),
-          _InverterSection(),
-          Divider(),
-          _SolarFarmSection(),
-          Divider(),
-          _BatterySection(),
-          Divider(),
-          _LoadsSection(),
-          Divider(),
-          _InverterUpgradesSection(),
-          Divider(),
-          _UtilitySection(),
-          SizedBox(height: 16),
-        ],
+      backgroundColor: isDark
+          ? AppColors.iosDarkBackground
+          : AppColors.iosLightBackground,
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: const [
+            _HudBar(),
+            SizedBox(height: 16),
+            _DayNightCycleSection(),
+            SizedBox(height: 16),
+            _InverterSection(),
+            SizedBox(height: 16),
+            _SolarFarmSection(),
+            SizedBox(height: 16),
+            _BatterySection(),
+            SizedBox(height: 16),
+            _LoadsSection(),
+            SizedBox(height: 16),
+            _InverterUpgradesSection(),
+            SizedBox(height: 16),
+            _UtilitySection(),
+            SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
 
   void _showSettingsDialog(BuildContext context) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (dialogContext) => const _SettingsDialog(),
     );
@@ -79,7 +94,7 @@ class _IconValue extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           value,
-          style: Theme.of(context).textTheme.bodySmall,
+          style: const TextStyle(fontSize: 14),
         ),
       ],
     );
@@ -95,6 +110,8 @@ class _HudBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
+      final theme = CupertinoTheme.of(context);
+      final isDark = theme.brightness == Brightness.dark;
       final moneyVal = money.value;
       final revenueVal = currentRevenuePerSecond.value;
       final powerOut = currentPowerOutput.value;
@@ -102,34 +119,155 @@ class _HudBar extends StatelessWidget {
       final maxCap = maxCapacity.value;
 
       final batteryPercent = maxCap > 0 ? (energyVal / maxCap * 100) : 0.0;
-      final batteryColor = batteryPercent > 20 ? Colors.green : Colors.red;
+      final batteryColor = batteryPercent > 20
+          ? AppColors.iosGreen
+          : AppColors.iosRed;
 
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: isDark ? AppColors.cardDark : AppColors.iosGray6,
         child: Wrap(
           spacing: 16,
           runSpacing: 8,
           children: [
             _IconValue(
-              icon: Icons.account_balance_wallet,
+              icon: CupertinoIcons.money_dollar_circle,
               value: '₨${moneyVal.toStringAsFixed(0)}',
-              iconColor: Colors.amber,
+              iconColor: AppColors.iosOrange,
             ),
             _IconValue(
-              icon: Icons.trending_up,
+              icon: CupertinoIcons.arrow_up_circle,
               value: '+${revenueVal.toStringAsFixed(1)}/s',
-              iconColor: Colors.green,
+              iconColor: AppColors.iosGreen,
             ),
             _IconValue(
-              icon: Icons.wb_sunny,
+              icon: CupertinoIcons.sun_max,
               value: '${powerOut.toStringAsFixed(0)}W',
-              iconColor: Colors.orange,
+              iconColor: AppColors.iosYellow,
             ),
             _IconValue(
-              icon: Icons.battery_std,
+              icon: CupertinoIcons.battery_100,
               value: '${batteryPercent.toStringAsFixed(0)}%',
               iconColor: batteryColor,
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+// ============================================================================
+// DAY/NIGHT CYCLE SECTION
+// ============================================================================
+class _DayNightCycleSection extends StatelessWidget {
+  const _DayNightCycleSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Watch((context) {
+      final timeOfDay = currentTimeOfDay.value;
+      final progress = dayProgress.value;
+      final radiationVal = radiation.value;
+      final label = timeOfDayLabel.value;
+      final percent = cycleProgressPercent.value;
+      final nextPhaseTime = timeUntilNextPhase.value;
+
+      Color cycleColor;
+      IconData cycleIcon;
+      switch (timeOfDay) {
+        case TimeOfDay.night:
+          cycleColor = AppColors.iosIndigo;
+          cycleIcon = CupertinoIcons.moon;
+          break;
+        case TimeOfDay.dawn:
+          cycleColor = AppColors.iosOrange;
+          cycleIcon = CupertinoIcons.sunset;
+          break;
+        case TimeOfDay.day:
+          cycleColor = AppColors.iosYellow;
+          cycleIcon = CupertinoIcons.sun_max;
+          break;
+        case TimeOfDay.dusk:
+          cycleColor = AppColors.iosPink;
+          cycleIcon = CupertinoIcons.sunrise;
+          break;
+      }
+
+      return Container(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(cycleIcon, color: cycleColor, size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  '[TIME: $label]',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: cycleColor,
+                  ),
+                ),
+                const Spacer(),
+                _IconValue(
+                  icon: CupertinoIcons.sun_max,
+                  value: '${(radiationVal * 100).toStringAsFixed(0)}%',
+                  iconColor: radiationVal > 0
+                      ? AppColors.iosYellow
+                      : AppColors.iosGray,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Progress bar
+            _CupertinoProgressBar(
+              value: progress,
+              backgroundColor: AppColors.cardDark,
+              valueColor: cycleColor,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '00:00',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+                Text(
+                  'Progress: $percent%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: cycleColor,
+                  ),
+                ),
+                Text(
+                  '24:00',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(CupertinoIcons.time, size: 14, color: AppColors.iosGray),
+                const SizedBox(width: 4),
+                Text(
+                  'Next phase in ${nextPhaseTime}s',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -155,28 +293,31 @@ class _InverterSection extends StatelessWidget {
         child: Column(
           children: [
             // Main control row
-            InkWell(
+            GestureDetector(
               onTap: () => toggleInverter(),
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.power,
+                      CupertinoIcons.power,
                       size: 32,
-                      color: isOn ? Colors.green : Colors.red,
+                      color: isOn ? AppColors.iosGreen : AppColors.iosRed,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       isOn ? 'ON' : 'OFF',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: isOn ? Colors.green : Colors.red,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: isOn ? AppColors.iosGreen : AppColors.iosRed,
                       ),
                     ),
                     const Spacer(),
-                    Switch(
+                    CupertinoSwitch(
                       value: isOn,
                       onChanged: (_) => toggleInverter(),
                     ),
@@ -188,22 +329,22 @@ class _InverterSection extends StatelessWidget {
             Row(
               children: [
                 _IconValue(
-                  icon: Icons.bolt,
+                  icon: CupertinoIcons.bolt,
                   value: '${currentUpgrade.watt.toStringAsFixed(0)}W',
-                  iconColor: Colors.amber,
+                  iconColor: AppColors.iosOrange,
                 ),
                 const SizedBox(width: 16),
                 _IconValue(
-                  icon: Icons.electrical_services,
+                  icon: CupertinoIcons.square_grid_2x2,
                   value: currentUpgrade.tier.label,
-                  iconColor: Colors.cyan,
+                  iconColor: AppColors.iosTeal,
                 ),
                 const SizedBox(width: 16),
                 _IconValue(
-                  icon: Icons.speed,
+                  icon: CupertinoIcons.gauge,
                   value:
                       '${(currentUpgrade.tier.efficiency * 100).toStringAsFixed(0)}%',
-                  iconColor: Colors.green,
+                  iconColor: AppColors.iosGreen,
                 ),
               ],
             ),
@@ -245,32 +386,37 @@ class _SolarFarmSection extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.wb_sunny, size: 16, color: Colors.orange),
+                    Icon(
+                      CupertinoIcons.sun_max,
+                      size: 16,
+                      color: CupertinoColors.systemOrange,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${radiationPercent.toStringAsFixed(0)}%',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: const TextStyle(fontSize: 12),
                     ),
                     const SizedBox(width: 4),
                     SizedBox(
                       width: 40,
-                      child: LinearProgressIndicator(
+                      child: _CupertinoProgressBar(
                         value: radiationPercent / 100,
-                        backgroundColor: Colors.grey.shade300,
+                        backgroundColor: CupertinoColors.systemGrey5,
+                        valueColor: CupertinoColors.systemOrange,
                       ),
                     ),
                   ],
                 ),
                 _IconValue(
-                  icon: Icons.solar_power,
+                  icon: CupertinoIcons.sun_max_fill,
                   value:
                       '${powerOut.toStringAsFixed(0)}/${maxCap.toStringAsFixed(0)}W',
-                  iconColor: Colors.amber,
+                  iconColor: CupertinoColors.systemYellow,
                 ),
                 _IconValue(
-                  icon: Icons.grid_view,
+                  icon: CupertinoIcons.square_grid_2x2,
                   value: '${panelsList.length}',
-                  iconColor: Colors.cyan,
+                  iconColor: CupertinoColors.systemTeal,
                 ),
               ],
             ),
@@ -280,39 +426,32 @@ class _SolarFarmSection extends StatelessWidget {
                 spacing: 4,
                 runSpacing: 4,
                 children: panelsList.map((panel) {
-                  return FilterChip(
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                    avatar: Icon(
-                      Icons.solar_power,
-                      size: 14,
-                      color: panel.status ? Colors.amber : Colors.grey,
-                    ),
-                    label: Text(
-                      '#${panel.id}',
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                    selected: panel.status,
-                    onSelected: (_) => togglePanelActivation(panel),
+                  return _CupertinoChip(
+                    icon: CupertinoIcons.sun_max_fill,
+                    label: '#${panel.id}',
+                    isSelected: panel.status,
+                    onTap: () => togglePanelActivation(panel),
                   );
                 }).toList(),
               ),
             ],
             const SizedBox(height: 8),
-            TextButton.icon(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
               onPressed: canBuyPanel
                   ? () {
                       createPanel();
                       debitMoney(1000);
                     }
                   : null,
-              icon: const Icon(Icons.add_circle, size: 16),
-              label: const Text('₨1,000'),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(CupertinoIcons.plus_circle, size: 16),
+                  const SizedBox(width: 4),
+                  const Text('₨1,000'),
+                ],
+              ),
             ),
           ],
         ),
@@ -342,15 +481,15 @@ class _BatterySection extends StatelessWidget {
       final canUpgrade = nextUpgrade != null && moneyVal >= nextUpgrade.cost;
 
       final batteryColor = batteryPercent > 50
-          ? Colors.green
+          ? CupertinoColors.systemGreen
           : batteryPercent > 20
-          ? Colors.amber
-          : Colors.red;
+          ? CupertinoColors.systemYellow
+          : CupertinoColors.systemRed;
       final batteryIcon = chargingVal
-          ? Icons.battery_charging_full
+          ? CupertinoIcons.battery_charging
           : batteryPercent > 50
-          ? Icons.battery_std
-          : Icons.battery_alert;
+          ? CupertinoIcons.battery_100
+          : CupertinoIcons.battery_25;
 
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -364,17 +503,18 @@ class _BatterySection extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   '${batteryPercent.toStringAsFixed(0)}%',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     color: batteryColor,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: LinearProgressIndicator(
+                  child: _CupertinoProgressBar(
                     value: batteryPercent / 100,
-                    backgroundColor: Colors.grey.shade300,
-                    color: batteryColor,
+                    backgroundColor: CupertinoColors.systemGrey5,
+                    valueColor: batteryColor,
                   ),
                 ),
               ],
@@ -384,28 +524,28 @@ class _BatterySection extends StatelessWidget {
             Row(
               children: [
                 _IconValue(
-                  icon: Icons.label,
+                  icon: CupertinoIcons.tag,
                   value: tierNameVal,
-                  iconColor: Colors.cyan,
+                  iconColor: CupertinoColors.systemTeal,
                 ),
                 const SizedBox(width: 12),
                 _IconValue(
-                  icon: Icons.bolt,
+                  icon: CupertinoIcons.bolt,
                   value: '${currentUpgrade.voltage.toStringAsFixed(0)}V',
-                  iconColor: Colors.amber,
+                  iconColor: CupertinoColors.systemYellow,
                 ),
                 const SizedBox(width: 12),
                 _IconValue(
-                  icon: Icons.storage,
+                  icon: CupertinoIcons.cube_box,
                   value: '${currentUpgrade.capacityWh.toStringAsFixed(0)}Wh',
-                  iconColor: Colors.orange,
+                  iconColor: CupertinoColors.systemOrange,
                 ),
                 const SizedBox(width: 12),
                 _IconValue(
-                  icon: Icons.speed,
+                  icon: CupertinoIcons.gauge,
                   value:
                       '${(currentUpgrade.efficiency * 100).toStringAsFixed(0)}%',
-                  iconColor: Colors.green,
+                  iconColor: CupertinoColors.systemGreen,
                 ),
               ],
             ),
@@ -413,23 +553,20 @@ class _BatterySection extends StatelessWidget {
             // Upgrade row
             Row(
               children: [
-                Icon(Icons.upgrade, size: 16, color: Colors.purple),
+                Icon(
+                  CupertinoIcons.up_arrow,
+                  size: 16,
+                  color: CupertinoColors.systemPurple,
+                ),
                 const SizedBox(width: 4),
                 if (nextUpgrade != null) ...[
                   Text(
                     nextUpgrade.name,
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: const TextStyle(fontSize: 12),
                   ),
                   const SizedBox(width: 8),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
                     onPressed: canUpgrade
                         ? () {
                             purchaseBatteryUpgrade(nextUpgrade.id);
@@ -441,9 +578,10 @@ class _BatterySection extends StatelessWidget {
                 ] else
                   Text(
                     'MAX',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: CupertinoColors.systemGreen,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
               ],
@@ -482,21 +620,25 @@ class _LoadsSection extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 _IconValue(
-                  icon: Icons.solar_power,
+                  icon: CupertinoIcons.sun_max_fill,
                   value: '${powerOut.toStringAsFixed(0)}W',
-                  iconColor: Colors.amber,
+                  iconColor: CupertinoColors.systemYellow,
                 ),
-                Icon(Icons.arrow_forward, size: 14, color: Colors.grey),
+                Icon(
+                  CupertinoIcons.arrow_right,
+                  size: 14,
+                  color: CupertinoColors.systemGrey,
+                ),
                 _IconValue(
-                  icon: Icons.electrical_services,
+                  icon: CupertinoIcons.bolt_fill,
                   value: '${activeLoadsVal.toStringAsFixed(0)}W',
-                  iconColor: Colors.cyan,
+                  iconColor: CupertinoColors.systemTeal,
                 ),
-                Text('|', style: TextStyle(color: Colors.grey)),
+                Text('|', style: TextStyle(color: CupertinoColors.systemGrey)),
                 _IconValue(
-                  icon: Icons.attach_money,
+                  icon: CupertinoIcons.money_dollar,
                   value: '+${activeRevenueVal.toStringAsFixed(1)}₨/s',
-                  iconColor: Colors.green,
+                  iconColor: CupertinoColors.systemGreen,
                 ),
               ],
             ),
@@ -506,20 +648,11 @@ class _LoadsSection extends StatelessWidget {
                 spacing: 4,
                 runSpacing: 4,
                 children: loadsList.map((load) {
-                  return FilterChip(
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                    avatar: Icon(
-                      _getLoadIcon(load.name),
-                      size: 14,
-                      color: load.isActive ? Colors.green : Colors.grey,
-                    ),
-                    label: Text(
-                      '${load.load.toStringAsFixed(0)}W',
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                    selected: load.isActive,
-                    onSelected: (_) => toggleLoad(load.id),
+                  return _CupertinoChip(
+                    icon: _getLoadIcon(load.name),
+                    label: '${load.load.toStringAsFixed(0)}W',
+                    isSelected: load.isActive,
+                    onTap: () => toggleLoad(load.id),
                   );
                 }).toList(),
               ),
@@ -528,11 +661,15 @@ class _LoadsSection extends StatelessWidget {
             // Marketplace
             Row(
               children: [
-                Icon(Icons.shopping_cart, size: 14, color: Colors.grey),
+                Icon(
+                  CupertinoIcons.cart,
+                  size: 14,
+                  color: CupertinoColors.systemGrey,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   'Buy:',
-                  style: Theme.of(context).textTheme.labelSmall,
+                  style: TextStyle(fontSize: 12),
                 ),
               ],
             ),
@@ -542,21 +679,11 @@ class _LoadsSection extends StatelessWidget {
               runSpacing: 4,
               children: loadTypeCatalog.values.map((loadType) {
                 final canBuy = moneyVal >= loadType.cost;
-                return ActionChip(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                  avatar: Icon(
-                    IconData(
-                      loadType.iconCodePoint,
-                      fontFamily: 'MaterialIcons',
-                    ),
-                    size: 14,
-                  ),
-                  label: Text(
-                    '${loadType.wattage.toStringAsFixed(0)}W ₨${loadType.cost.toStringAsFixed(0)}',
-                    style: const TextStyle(fontSize: 11),
-                  ),
-                  onPressed: canBuy
+                return _CupertinoActionChip(
+                  icon: CupertinoIcons.lightbulb,
+                  label:
+                      '${loadType.wattage.toStringAsFixed(0)}W ₨${loadType.cost.toStringAsFixed(0)}',
+                  onTap: canBuy
                       ? () {
                           purchaseLoad(loadType.id);
                           debitMoney(loadType.cost);
@@ -574,15 +701,15 @@ class _LoadsSection extends StatelessWidget {
   IconData _getLoadIcon(String name) {
     final lowerName = name.toLowerCase();
     if (lowerName.contains('bulb') || lowerName.contains('light')) {
-      return Icons.lightbulb;
+      return CupertinoIcons.lightbulb;
     } else if (lowerName.contains('iron')) {
-      return Icons.iron;
+      return CupertinoIcons.rectangle_3_offgrid;
     } else if (lowerName.contains('wash') || lowerName.contains('laundry')) {
-      return Icons.local_laundry_service;
+      return CupertinoIcons.bubble_left;
     } else if (lowerName.contains('sew') || lowerName.contains('machine')) {
-      return Icons.precision_manufacturing;
+      return CupertinoIcons.gear;
     }
-    return Icons.electrical_services;
+    return CupertinoIcons.bolt;
   }
 }
 
@@ -604,32 +731,34 @@ class _InverterUpgradesSection extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            Icon(Icons.bolt, size: 20, color: Colors.amber),
+            Icon(
+              CupertinoIcons.bolt,
+              size: 20,
+              color: CupertinoColors.systemYellow,
+            ),
             const SizedBox(width: 8),
             Text(
               '${current.watt.toStringAsFixed(0)}W ${current.tier.label}',
-              style: Theme.of(context).textTheme.bodySmall,
+              style: const TextStyle(fontSize: 12),
             ),
             if (nextUpgrade != null) ...[
               const SizedBox(width: 8),
-              Icon(Icons.arrow_forward, size: 14, color: Colors.grey),
+              Icon(
+                CupertinoIcons.arrow_right,
+                size: 14,
+                color: CupertinoColors.systemGrey,
+              ),
               const SizedBox(width: 8),
               Text(
                 '${nextUpgrade.watt.toStringAsFixed(0)}W ${nextUpgrade.tier.label}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.green,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CupertinoColors.systemGreen,
                 ),
               ),
               const Spacer(),
-              TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
                 onPressed: canUpgrade
                     ? () {
                         purchaseInverterUpgrade(nextUpgrade.id);
@@ -642,9 +771,10 @@ class _InverterUpgradesSection extends StatelessWidget {
               const Spacer(),
               Text(
                 'MAX',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CupertinoColors.systemGreen,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -680,30 +810,35 @@ class _UtilitySection extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  Icons.power_input,
+                  CupertinoIcons.power,
                   size: 20,
-                  color: isActive ? Colors.green : Colors.red,
+                  color: isActive
+                      ? CupertinoColors.systemGreen
+                      : CupertinoColors.systemRed,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   isActive ? 'Connected' : 'Disconnected',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isActive ? Colors.green : Colors.red,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isActive
+                        ? CupertinoColors.systemGreen
+                        : CupertinoColors.systemRed,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 if (isActive) ...[
                   const SizedBox(width: 8),
                   _IconValue(
-                    icon: Icons.timer,
+                    icon: CupertinoIcons.time,
                     value: '${remainingSeconds}s',
-                    iconColor: Colors.cyan,
+                    iconColor: CupertinoColors.systemTeal,
                   ),
                   const SizedBox(width: 8),
                   _IconValue(
-                    icon: Icons.bolt,
+                    icon: CupertinoIcons.bolt,
                     value: '${power.toStringAsFixed(0)}W',
-                    iconColor: Colors.amber,
+                    iconColor: CupertinoColors.systemYellow,
                   ),
                 ],
               ],
@@ -715,15 +850,8 @@ class _UtilitySection extends StatelessWidget {
               runSpacing: 4,
               children: _presetAmounts.map((amount) {
                 final canBuy = moneyVal >= amount;
-                return TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
+                return CupertinoButton(
+                  padding: EdgeInsets.zero,
                   onPressed: canBuy
                       ? () {
                           purchaseUtility(amount);
@@ -758,55 +886,214 @@ class _SettingsDialog extends StatelessWidget {
       final halfCycle = cycleDur ~/ 2;
       final isDay = cyclePos <= halfCycle && radiationVal > 0;
 
-      return AlertDialog(
+      return CupertinoAlertDialog(
         title: const Text('Settings'),
         content: SizedBox(
           width: 280,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SwitchListTile(
-                dense: true,
-                title: const Text('Dark Mode'),
-                value: dark,
-                onChanged: (_) => toggleDarkMode(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Dark Mode'),
+                  CupertinoSwitch(
+                    value: dark,
+                    onChanged: (_) => toggleDarkMode(),
+                  ),
+                ],
               ),
-              const Divider(),
-              ListTile(
-                dense: true,
-                title: const Text('Cycle Duration'),
-                trailing: Text('${cycleDur}s'),
+              Container(height: 1, color: CupertinoColors.separator),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Cycle Duration'),
+                  Text('${cycleDur}s'),
+                ],
               ),
-              Slider(
+              CupertinoSlider(
                 value: cycleDur.toDouble(),
                 min: 10,
                 max: 300,
                 divisions: 29,
-                label: '${cycleDur}s',
                 onChanged: (value) {
                   configureRadiationCycle(value.toInt());
                 },
               ),
-              const Divider(),
-              ListTile(
-                dense: true,
-                leading: Icon(isDay ? Icons.wb_sunny : Icons.nightlight_round),
-                title: Text(isDay ? 'Day' : 'Night'),
-                trailing: Text('${cyclePos}s / ${cycleDur}s'),
+              Container(height: 1, color: CupertinoColors.separator),
+              Row(
+                children: [
+                  Icon(isDay ? CupertinoIcons.sun_max : CupertinoIcons.moon),
+                  const SizedBox(width: 8),
+                  Text(isDay ? 'Day' : 'Night'),
+                  const Spacer(),
+                  Text('${cyclePos}s / ${cycleDur}s'),
+                ],
               ),
-              LinearProgressIndicator(
+              _CupertinoProgressBar(
                 value: cyclePos / cycleDur,
+                backgroundColor: CupertinoColors.systemGrey5,
+                valueColor: CupertinoColors.systemBlue,
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
           ),
         ],
       );
     });
+  }
+}
+
+// ============================================================================
+// CUSTOM CUPERTINO PROGRESS BAR
+// ============================================================================
+class _CupertinoProgressBar extends StatelessWidget {
+  final double value;
+  final Color backgroundColor;
+  final Color valueColor;
+
+  const _CupertinoProgressBar({
+    required this.value,
+    required this.backgroundColor,
+    required this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 6,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: value.clamp(0.0, 1.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: valueColor,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CUSTOM CUPERTINO CHIP
+// ============================================================================
+class _CupertinoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CupertinoChip({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? CupertinoColors.systemBlue.withValues(alpha: 0.2)
+              : CupertinoColors.systemGrey5,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? CupertinoColors.systemBlue
+                : CupertinoColors.systemGrey3,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected
+                  ? CupertinoColors.systemBlue
+                  : CupertinoColors.systemGrey,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: isSelected
+                    ? CupertinoColors.systemBlue
+                    : CupertinoColors.label,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CUSTOM CUPERTINO ACTION CHIP
+// ============================================================================
+class _CupertinoActionChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  const _CupertinoActionChip({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: onTap != null
+              ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
+              : CupertinoColors.systemGrey5,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: onTap != null
+                  ? CupertinoColors.systemBlue
+                  : CupertinoColors.systemGrey,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: onTap != null
+                    ? CupertinoColors.systemBlue
+                    : CupertinoColors.systemGrey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

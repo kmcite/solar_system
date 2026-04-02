@@ -51,17 +51,7 @@ class GlassCard extends StatelessWidget {
                   : Colors.grey.withValues(alpha: 0.15)),
           width: 1,
         ),
-        boxShadow: glowColor != null
-            ? AppShadows.glowSmall(glowColor!)
-            : (isDark
-                  ? AppShadows.cardShadow
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]),
+        boxShadow: AppShadows.cardShadow(),
       ),
       child: Material(
         color: Colors.transparent,
