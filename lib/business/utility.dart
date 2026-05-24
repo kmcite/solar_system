@@ -1,6 +1,57 @@
 import 'dart:async';
 import 'package:faker/faker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:signals/signals.dart';
+
+final utility = UtilityNotifier();
+
+class UtilityNotifier extends ChangeNotifier {
+  Timer? utilityTimer;
+  UtilityNotifier() {
+    utilityTimer = Timer.periodic(
+      Duration(seconds: 1),
+      (_) {},
+    );
+  }
+
+  var status = false;
+
+  /// INTERNAL STATE
+  num _usage = 0;
+  num _power = 1000;
+  num voltage = 220;
+
+  /// PUBLIC STATE
+  num remainingTime = 0;
+  num get amperes => power / voltage;
+  num get power => status ? _power : 0;
+  num get usage => _usage;
+
+  void startUtility() {
+    status = true;
+    notifyListeners();
+  }
+
+  void stopUtility() {
+    status = false;
+    notifyListeners();
+  }
+
+  void upgradePower() {
+    _power += 1000;
+    notifyListeners();
+  }
+
+  void buyUsage() {
+    _usage += 1;
+    notifyListeners();
+  }
+
+  void toggleUtility(bool value) {
+    status = value;
+    notifyListeners();
+  }
+}
 
 // =============================================================================
 // STATE

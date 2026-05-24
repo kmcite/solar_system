@@ -1,58 +1,57 @@
 import 'dart:async';
-import 'package:signals/signals.dart';
+import 'package:flutter/material.dart';
+import 'package:solar_system/business/money.dart';
 import 'loads.dart' as loads_state;
 import 'inverter.dart' as inverter_state;
-import 'app.dart' as app_state;
 
-// =============================================================================
-// STATE
-// =============================================================================
-final revenueIsRunning = signal(false);
-final currentRevenuePerSecond = signal(0.0);
-final totalEarned = signal(0.0);
+final revenue = RevenueNotifier();
 
-// =============================================================================
-// INTERNAL
-// =============================================================================
-Timer? _revenueTimer;
+class RevenueNotifier extends ChangeNotifier {
+  bool status = false;
+  num rate = 0;
+  num total = 0;
 
-// =============================================================================
-// ACTIONS
-// =============================================================================
-void startRevenue() {
-  _revenueTimer?.cancel();
-  _revenueTimer = Timer.periodic(
-    const Duration(seconds: 1),
-    (_) => _tickRevenue(),
-  );
-  revenueIsRunning.value = true;
-}
-
-void stopRevenue() {
-  _revenueTimer?.cancel();
-  batch(() {
-    revenueIsRunning.value = false;
-    currentRevenuePerSecond.value = 0;
-  });
-}
-
-void _tickRevenue() {
-  if (!inverter_state.inverterStatus.value) {
-    currentRevenuePerSecond.value = 0;
-    return;
+  RevenueNotifier() {
+    startRevenue();
+    print(this);
   }
-  final revenue = loads_state.totalActiveRevenue.value;
-  if (revenue > 0) {
-    app_state.creditMoney(revenue);
-    batch(() {
-      currentRevenuePerSecond.value = revenue;
-      totalEarned.value += revenue;
-    });
-  } else {
-    currentRevenuePerSecond.value = 0;
-  }
-}
 
-void disposeRevenue() {
-  _revenueTimer?.cancel();
+  Timer? _revenueTimer;
+  void startRevenue() {
+    _revenueTimer?.cancel();
+    _revenueTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _tickRevenue(),
+    );
+    status = true;
+    notifyListeners();
+  }
+
+  void stopRevenue() {
+    _revenueTimer?.cancel();
+    status = false;
+    rate = 0;
+    notifyListeners();
+  }
+
+  void _tickRevenue() {
+    if (!inverter_state.inverterStatus.value) {
+      rate = 0;
+      return;
+    }
+    final revenue = loads_state.totalActiveRevenue.value;
+    if (revenue > 0) {
+      money.credit(revenue);
+      rate = revenue;
+      total += revenue;
+    } else {
+      rate = 0;
+    }
+    notifyListeners();
+  }
+
+  void dispose() {
+    _revenueTimer?.cancel();
+    super.dispose();
+  }
 }

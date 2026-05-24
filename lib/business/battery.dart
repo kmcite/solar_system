@@ -1,96 +1,151 @@
 import 'dart:async';
-import 'package:signals/signals.dart';
+import 'package:flutter/foundation.dart';
 
-// =============================================================================
-// STATE
-// =============================================================================
-final energyInWattHours = signal(0.95);
-final isCharging = signal(true);
-final batteryVoltage = signal(12.0);
-final maxCapacity = signal(1.0);
-final tierName = signal('Lead-Acid');
-final chargeMultiplier = signal(1.0);
-final efficiency = signal(0.85);
+enum BatteryChemistry {
+  wet_lead_acid,
+  gel_lead_acid,
+  graphene_lead_acid,
+  nano_carbon_fiber_lead_acid,
+  lithium_iron_phosphate,
+  lithium_nickel_manganese_cobalt_oxide,
+  lithium_ion_polymer,
+  lithium_titanate_oxide;
 
-// =============================================================================
-// INTERNAL
-// =============================================================================
-Timer? _dischargeTimer;
+  double get voltage => switch (this) {
+    .wet_lead_acid => 2.1,
+    .gel_lead_acid => 2.1,
+    .graphene_lead_acid => 2.1,
+    .nano_carbon_fiber_lead_acid => 2.1,
+    .lithium_iron_phosphate => 3.2,
+    .lithium_nickel_manganese_cobalt_oxide => 3.6,
+    .lithium_ion_polymer => 3.7,
+    .lithium_titanate_oxide => 2.4,
+  };
 
-// =============================================================================
-// ACTIONS
-// =============================================================================
-void updateBatteryRadiation(double radiationValue) {
-  final chargeAmount = radiationValue * 0.01 * chargeMultiplier.value;
-  if (energyInWattHours.value < maxCapacity.value) {
-    energyInWattHours.value = (energyInWattHours.value + chargeAmount).clamp(
-      0.0,
-      maxCapacity.value,
-    );
-    isCharging.value = true;
-  } else {
-    isCharging.value = false;
+  int get cycles => switch (this) {
+    .wet_lead_acid => 300,
+    .gel_lead_acid => 300,
+    .graphene_lead_acid => 900,
+    .nano_carbon_fiber_lead_acid => 1000,
+    .lithium_iron_phosphate => 8000,
+    .lithium_nickel_manganese_cobalt_oxide => 3000,
+    .lithium_ion_polymer => 1500,
+    .lithium_titanate_oxide => 20000,
+  };
+}
+
+final charger = ChargerNotifier();
+
+class ChargerNotifier extends ChangeNotifier {
+  double amperes = 10.0;
+  num chargeWithPower(num voltage) {
+    lifetime = lifetime - .001;
+    return amperes * voltage;
   }
+
+  double lifetime = 1;
 }
 
-void stopBatteryCharging() {
-  isCharging.value = false;
-}
+final battery = BatteryNotifier();
 
-void dischargeBattery() {
-  if (energyInWattHours.value > 0) {
-    // Less efficient = more energy lost during discharge
-    final dischargeAmount = 0.005 / efficiency.value;
-    energyInWattHours.value = (energyInWattHours.value - dischargeAmount).clamp(
-      0.0,
-      maxCapacity.value,
-    );
+class BatteryNotifier extends ChangeNotifier {
+  BatteryNotifier() {
+    startBatteryDischarge(); // starts from the app startup
   }
-}
+  BatteryChemistry chemistry = .wet_lead_acid;
+  num energy = 1; // kWhr - BTU
+  bool isCharging = false;
+  num get voltage => chemistry.voltage;
 
-void chargeBattery(double amperes) {
-  if (energyInWattHours.value < maxCapacity.value) {
-    final chargeAmount =
-        amperes * 0.01 * chargeMultiplier.value * efficiency.value;
-    energyInWattHours.value = (energyInWattHours.value + chargeAmount).clamp(
-      0.0,
-      maxCapacity.value,
-    );
-    isCharging.value = true;
-  } else {
-    isCharging.value = false;
+  late int currentRemainingCycles = totalCycles;
+
+  int get totalCycles => chemistry.cycles;
+
+  num maximumCapacity = 1;
+  num chargeMultiplier = 1;
+
+  //// ACTIONS
+  void charge(num power) {
+    isCharging = true;
+    energy = (energy + power * 0.01).clamp(0, 1);
+    notifyListeners();
   }
-}
 
-void applyBatteryUpgrade({
-  required double newMaxCapacity,
-  required double newVoltage,
-  required String newTierName,
-  required double newChargeMultiplier,
-  required double newEfficiency,
-}) {
-  batch(() {
-    maxCapacity.value = newMaxCapacity;
-    batteryVoltage.value = newVoltage;
-    tierName.value = newTierName;
-    chargeMultiplier.value = newChargeMultiplier;
-    efficiency.value = newEfficiency;
+  Timer? _dischargeTimer;
+
+  // =============================================================================
+  // ACTIONS
+  // =============================================================================
+  void updateBatteryRadiation(double radiationValue) {
+    final chargeAmount = radiationValue * 0.01 * chargeMultiplier;
+    if (energy < maximumCapacity) {
+      energy = (energy + chargeAmount).clamp(
+        0.0,
+        maximumCapacity,
+      );
+      isCharging = true;
+    } else {
+      isCharging = false;
+    }
+  }
+
+  void stopBatteryCharging() {
+    isCharging = false;
+  }
+
+  void dischargeBattery() {
+    if (energy > 0) {
+      // Less efficient = more energy lost during discharge
+      final dischargeAmount = 0.005 / totalCycles;
+      energy = (energy - dischargeAmount).clamp(
+        0.0,
+        maximumCapacity,
+      );
+    }
+  }
+
+  void chargeBattery(double amperes) {
+    if (energy < maximumCapacity) {
+      final chargeAmount = amperes * 0.01 * chargeMultiplier * totalCycles;
+      energy = (energy + chargeAmount).clamp(
+        0.0,
+        maximumCapacity,
+      );
+      isCharging = true;
+    } else {
+      isCharging = false;
+    }
+  }
+
+  /// OUTSIDE COMMUNICATION
+  void applyBatteryUpgrade({
+    required double newMaxCapacity,
+    required double newVoltage,
+    required String newTierName,
+    required double newChargeMultiplier,
+    required double newEfficiency,
+  }) {
+    maximumCapacity = newMaxCapacity;
+    // batteryVoltage = newVoltage;
+    // tierName = newTierName; // Changed from tierName.value = newTierName;
+    chargeMultiplier = newChargeMultiplier;
+    // totalCycles = newEfficiency;
     // Clamp energy to new max capacity if needed
-    energyInWattHours.value = energyInWattHours.value.clamp(
+    energy = energy.clamp(
       0.0,
       newMaxCapacity,
     );
-  });
-}
+  }
 
-void startBatteryDischarge() {
-  _dischargeTimer?.cancel();
-  _dischargeTimer = Timer.periodic(
-    const Duration(seconds: 1),
-    (_) => dischargeBattery(),
-  );
-}
+  void startBatteryDischarge() {
+    _dischargeTimer?.cancel();
+    _dischargeTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => dischargeBattery(),
+    );
+  }
 
-void disposeBattery() {
-  _dischargeTimer?.cancel();
+  void disposeBattery() {
+    _dischargeTimer?.cancel();
+  }
 }

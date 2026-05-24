@@ -1,73 +1,58 @@
-import 'package:signals/signals.dart';
-import '../domain/models/models.dart';
+import 'package:flutter/foundation.dart';
+import 'package:solar_system/domain/models/models.dart';
 
-// =============================================================================
-// STATE
-// =============================================================================
-final panels = signal<List<PanelModel>>([]);
-final panelRadiation = signal(
-  0.0,
-); // fed from radiation signal via effect in main
+final panels = PanelsNotifier();
 
-// =============================================================================
-// COMPUTED
-// =============================================================================
-final ratedMaxCapacity = computed(() {
-  return panels.value.fold(
+class PanelsNotifier extends ChangeNotifier {
+  List<PanelModel> panels = [];
+  double panelRadiation = 0.0;
+  double get ratedMaxCapacity => panels.fold(
     0.0,
     (total, panel) => total + panel.ratedMaxPowerOutput,
   );
-});
-
-final currentMaxCapacity = computed(() {
-  return panels.value.fold(
+  double get currentMaxCapacity => panels.fold(
     0.0,
     (total, panel) => total + panel.currentMaxPowerOutput,
   );
-});
-
-final currentPowerOutput = computed(() {
-  return panels.value
+  double get currentPowerOutput => panels
       .where((panel) => panel.status)
       .fold(
         0.0,
-        (total, panel) =>
-            total + panel.currentPowerOutput(panelRadiation.value),
+        (total, panel) => total + panel.currentPowerOutput(panelRadiation),
       );
-});
+  int _nextPanelId = 1;
 
-// =============================================================================
-// INTERNAL
-// =============================================================================
-int _nextPanelId = 1;
+  void createPanel() {
+    panels = [...panels, PanelModel(id: _nextPanelId++)];
+    notifyListeners();
+  }
 
-// =============================================================================
-// ACTIONS
-// =============================================================================
-void createPanel() {
-  panels.value = [...panels.value, PanelModel(id: _nextPanelId++)];
+  void putPanel(PanelModel panel) {
+    panels = panels.map((p) => p.id == panel.id ? panel : p).toList();
+    notifyListeners();
+  }
+
+  void togglePanelActivation(PanelModel panel) {
+    panels = panels.map((p) {
+      return p.id == panel.id ? p.copyWith(status: !p.status) : p;
+    }).toList();
+    notifyListeners();
+  }
+
+  void removePanel(int id) {
+    panels = panels.where((p) => p.id != id).toList();
+    notifyListeners();
+  }
+
+  void removeAllPanels() {
+    panels = [];
+    notifyListeners();
+  }
+
+  void setPanelRadiation(double value) {
+    panelRadiation = value;
+    notifyListeners();
+  }
+
+  PanelModel getPanel(int index) => panels[index];
 }
-
-void putPanel(PanelModel panel) {
-  panels.value = panels.value.map((p) => p.id == panel.id ? panel : p).toList();
-}
-
-void togglePanelActivation(PanelModel panel) {
-  panels.value = panels.value.map((p) {
-    return p.id == panel.id ? p.copyWith(status: !p.status) : p;
-  }).toList();
-}
-
-void removePanel(int id) {
-  panels.value = panels.value.where((p) => p.id != id).toList();
-}
-
-void removeAllPanels() {
-  panels.value = [];
-}
-
-void setPanelRadiation(double value) {
-  panelRadiation.value = value;
-}
-
-PanelModel getPanel(int index) => panels.value[index];
